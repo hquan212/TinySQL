@@ -16,6 +16,8 @@ public class Parser{
     ArrayList<String> words;
     ArrayList<String> t_names;
     ArrayList<String> values;
+    TreeNode delete;
+    TreeNode select;
     
     //initialize all variables
     public Parser(){
@@ -25,9 +27,26 @@ public class Parser{
         words = new ArrayList<>();
         t_names = new ArrayList<>();
         values = new ArrayList<>();
+        delete = null;
+        select = null;
         
     }
+    //get the a string from execution to parse through the values
+    public boolean syntax(String sampleString){
+        try{
+            this.reset();
+            
+        }
+    }
     public void reset(){
+        sentence = null
+        key_word = new ArrayList<>();
+        argument = new ArrayList<>();
+        words = new ArrayList<>();
+        t_names = new ArrayList<>();
+        values = new ArrayList<>();
+        delete = null;
+        select = null;
         
     }
     
