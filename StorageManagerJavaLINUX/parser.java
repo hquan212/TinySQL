@@ -49,7 +49,7 @@ public class Parser{
                     System.out.print("creating table please wait...");
                 }
                 else{
-                    System.out.print("This implementation only accept create table.");
+                    System.out.print("This implementation only accept drop or create table.");
                     return false;
                 }
                 
@@ -87,8 +87,45 @@ public class Parser{
                 }
                 System.out.print("Table created!");
             }
-            else if(){
+            //Drop Table
+            else if(res[0].equalsIgnoreCase("drop")){
+                //add it into keyword
+                key_word.add("drop");
+                if(res[1].equalsIgnoreCase("table")) {
+                    System.out.print("deleting (dropping) table please wait...");
+                }
+                else{
+                    System.out.print("This implementation only accept drop or create table.");
+                    return false;
+                }
                 
+                table_names.add(res[2]);
+                
+                if(res.length>3){
+                    System.out.print("Too many variables for Drop Table");
+                    return false;
+                }
+                
+            }
+            //inserting tables
+            else if(res[0].equalsIgnoreCase("insert")){
+                //add it to keyword
+                key_word("insert")
+                if(!res[1].equalsIgnoreCase("into")){
+                    System.out.print("This implementation only accept inteo from inserts.");
+                    return false;
+                }
+                else{
+                    System.out.print("inserting tuples into table please wait...");
+                }
+                
+                t_names.add(res[2]);
+                
+                int index = -1;
+                int string_index = -1;
+                for(int i=3){
+                    
+                }
             }
         }
     }
