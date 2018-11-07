@@ -14,14 +14,14 @@ public class Main{
         long t0 = System.currentTimeMillis();
         
         try{
-            // Initializer init = new Initializer();
+            // Core core = new Core();
             
             File input = new File("./test/TinySQL-TextLINUX.txt");
             
             Scanner scan = new Scanner(new FileInputStream(input));
 
             while (scan.hasNextLine()) {
-                // init.execute(scanner.nextLine());
+                // core.execute(scanner.nextLine());
                 System.out.println(scan.nextLine());
             }
         }
