@@ -184,6 +184,173 @@ public class Parser{
     }
     private boolean selectedParse(String[] res){
         select = new TreeNode();
+        key_word.add("select");
+        
+        int f_index = -1;
+        int d_index = -1;
+        int w_index = -1;
+        int o_index = -1;
+        
+        for(int i = 1; i < res.length; i++){
+            if(res[i].equalsIgnoreCase("distinct")){
+                d_index = i;
+            }
+
+            if(res[i].equalsIgnoreCase("from")){
+                f_index = i;
+            }
+
+            if(res[i].equalsIgnoreCase("where")){
+                w_index = i;
+            }
+
+            if(res[i].equalsIgnoreCase("order")){
+                o_index = i;
+            }
+            
+        }
+        if( d_index == 1){
+            select.distinct = true;
+        }else if (d_index >=0){
+            return false;
+        }
+        
+        if(w_index>0) {
+            if(o_index>0) {
+                if (w_index > o_index) {
+                    System.out.print("Order can not be found in front of WHERE!");
+                    return false;
+                }
+            }
+        }
+        
+        if(f_index < 0){
+            System.out.print("FROM is not after SELECT");
+            return false;
+        }
+        
+        StringBuilder string_builder = new StringBuilder();
+        
+        // adding * char when not distinct
+        if(d_index >0){
+            for(int i=2;i<f_index;i++){
+                string_builder.append(res[i]+" ");
+            }
+            String []arg_statment = string_builder.toString().split(",");
+
+            if(arg_statment[0].trim().equalsIgnoreCase("*")){
+                if(arg_statement.length==1) {
+                    select.argument.add("*");
+                }
+                else{
+                    System.out.print("check if two characters are connected to *")
+                    return false;
+                }
+
+            }else{
+                for(int i=0;i<arg_statement.length;i++){
+                    arg_statement[i]=arg_statement[i].trim();
+                    select.argument.add(arg_statement[i]);
+                }
+            }
+        }else{
+            
+            for(int i=1;i<f_index;i++){
+                string_builder.append(res[i]+" ");
+            }
+            String []arg_statment = string_builder.toString().split(",");
+
+            if(arg_statment[0].trim().equalsIgnoreCase("*")){
+                if(arg_statement.length==1) {
+                    select.argument.add("*");
+                }
+                else{
+                    System.out.print("check if two characters are connected to *")
+                    return false;
+                }
+
+            }else{
+                for(int i=0;i<arg_statement.length;i++){
+                    arg_statement[i]=arg_statement[i].trim();
+                    select.argument.add(arg_statement[i]);
+                }
+            }
+        }
+        
+        string_builder = new StringBuilder();
+        
+        if(w_index >0){
+            select.where = true;
+            for(int i = f_index+1; i < w_index; i++){
+                string_builder.append(res[i]+" ");
+            }
+            String tables[] = string_builder.toString().split(",");
+            
+            for(int i = 0; i<table.length; i++){
+                tables[i] = tables[i].trim();
+                select.table_names.add(tables[i]);
+            }
+            
+            
+            string_builder = new StringBuilder();
+            if(o_index>0){
+                select.order = true;
+                for(int i = w_index; i < o_index; i++){
+                    string_builder.append(res[i]+" ")
+                    
+                }
+                select.w_clause = Builder.generate(string_builder.toString());
+                
+                if(!res[o_index+1].equalsIgnoreCase("by")){
+                    System.out.print("No 'by' after ORDER");
+                    return false;
+                }
+                
+                string_builder = new StringBuilder();
+                for(int i = o_index + 2; i<res.length; i++){
+                    string_builder.append(res[i]+" ");  
+                }
+                select.o_clause = string_builder.toString();
+            }else{
+                for(int i=w_index + 1; i <res.length;i++){
+                    string_builder.append(res[i]+" ");
+                }
+                select.w_clause = Builder.generate(string_builder.toString());
+            }
+        }else{
+            if(o_index > 0){
+                if(!res[o_index+1].equalsIgnoreCase("by")){
+                    System.out.print("No 'by' after ORDER");
+                    return false;
+                }
+                select.order = true;
+                for(int i = f_index; i < o_index; i++){
+                    string_builder.append(res[i]+" ");
+                }
+                String tables[] = string_builder.toString().split(",");
+                for(int i = 0; i< tables.length; i++){
+                    tables[i] = tables[i].trim();
+                    select.table_names.add(tables[i]);
+                }
+                
+                string_builder = new StringBuilder();
+                for(int i = o_index+2; i< res.length ; i++){
+                    string_builder.append(res[i]+" ");
+                }
+                select.oclause = string_builder.toString();
+                
+            }else{
+                for(int i=w_index + 1; i <res.length;i++){
+                    string_builder.append(res[i]+" ");
+                }
+                String tables[] = string_builder.toString().split(",");
+                for(int i = 0; i< tables.length; i++){
+                    tables[i] = tables[i].trim();
+                    select.table_names.add(tables[i]);
+                }
+            }
+        }
+        
         
     }
     public void reset(){
