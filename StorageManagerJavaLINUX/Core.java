@@ -23,6 +23,7 @@ public class Core {
 	    disk.resetDiskIOs();
 	    disk.resetDiskTimer();
 	    
+	}
 	public void core(String stm){
 	    
 		if(parse.syntax(stm)){
@@ -83,6 +84,7 @@ public class Core {
 			
 		}
 	}
+	
 	
 	public void delete_core(){
 
@@ -197,13 +199,49 @@ public class Core {
                 relationToInsert.setBlock(i+formerBlocks, 9);
             }
         }
-    }  
+    }
+    
+    private Relation onePass(ArrayList<String) t_names){
+    	
+    	Schema onePass = schemaCombine(t_names);
+    	Relation operation = schema_manager.createRelation("opr", onePass);
+    	for (int i=0; i<t_names.size(); i++){
+    		schema_manager.getRelation(t_names.get(i)).getBlock(0,i);
+    	}
+    	
+    	ArrayList<Tuple> tList = new ArrayList<Tuple>();
+    	int n = 1;
+    	
+    	for(int i=0; i<t_names.size(); i++){
+    		n = n * (schema_manager.getRelation(t_names.get(i)).getNumOfTuples());
+    	}
+    	
+    	for (int i=0; i < n; i++){
+    		Tuple temp = operation.createTuple()
+    		tList.add(temp);
+    	}
+    	
+    	if(parse.select.distinct == false&&parse.select.order == false&&parse.select.w_clause==null&&parse.select.arg.get(0.equalsIgnoreCase("*")){
+    		System.out.println(onePass);
+    	}
+    	
+    	tList = onePassMemory (t.t_names.size(), 0, t_names, n);
+    	for (int i = 0; i < tList.size(), 0, t_names, n) {
+    		if(parse.select.distinct == false&&parse.select.order == false&&parse.select.w_clause==null&&parse.select.arg.get(0.equalsIgnoreCase("*")) {
+    			System.out.println(tList.get(i));
+    		}
+    		
+    		else {
+    			appendTuple(operation, mem, 9, tList.get(i));
+    		}
+    		
+    	}
+    	
+    	return operation;
+    }
+}
         
         
-        
-        
-        
-        
-        
-        
+     
+
         
