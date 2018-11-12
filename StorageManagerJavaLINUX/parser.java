@@ -176,11 +176,58 @@ public class Parser{
                     return selectedParse(string_builder.toString().split(" "));
                     
                 }
+      
+            }else if(res[0].equalsIgnoreCase("delete"){
+                key_word.add("delete")
+                delete = new TreeNode()
+                if(!res[1].equalsIgnoreCase("from"){
+                    System.out.print("No from key word after delete");
+                    return false;
+                }
+                int index =-1;
+                for(int i=0; i<res.length; i++){
+                    if(res[i].equalsIgnoreCase("where")){
+                        index = i;
+                        break;
+                    }
+                }
                 
+                if(index<0){
+                    index = res.length;
+                }else{
+                    delete.where = true;
+                }
                 
+                StringBuilder string_builder_1 = new StringBuilder();
                 
+                for(int i=2;i<index;i++){
+                    string_builder_1.append(res[i]+" ");
+                }
+                
+                String[] tables = string_builder_1.toString().split(",");
+
+                for(int i=0;i<tables.length;i++){
+                    delete.table_names.add(tables[i].trim());
+                }
+                
+                if(delete.where==true){
+                    StringBuilder string_builder = new StringBuilder();
+                    for(int i=index+1;i<res.length;i++){
+                        string_builder.append(res[i]+" ");
+                    }
+                    delete.w_clause =Builder.generate(string_builder.toString());
+                }
+            }else if(res[0].equalsIgnoreCase("select"){
+                return selectedParse(res)
+            }else{
+                
+                return false;
             }
+        }catch (Exception e)
+            System.out.print("Syntax is in the wrong format");
+            return false;
         }
+        return true;
     }
     private boolean selectedParse(String[] res){
         select = new TreeNode();
