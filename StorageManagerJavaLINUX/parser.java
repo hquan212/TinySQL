@@ -46,7 +46,7 @@ public class Parser{
             if(res[0].equalsIgnoreCase("create"){
                 key_word.ad("create");
                 if(res[1].equalsIgnoreCase("table")) {
-                    System.out.print("creating table please wait...");
+                    System.out.println("creating table please wait...");
                 }
                 else{
                     System.out.print("This implementation only accept drop or create table.");
@@ -92,7 +92,7 @@ public class Parser{
                 //add it into keyword
                 key_word.add("drop");
                 if(res[1].equalsIgnoreCase("table")) {
-                    System.out.print("deleting (dropping) table please wait...");
+                    System.out.println("deleting (dropping) table please wait...");
                 }
                 else{
                     System.out.print("This implementation only accept drop or create table.");
@@ -116,18 +116,75 @@ public class Parser{
                     return false;
                 }
                 else{
-                    System.out.print("inserting tuples into table please wait...");
+                    System.out.println("inserting tuples into table please wait...");
                 }
                 
                 t_names.add(res[2]);
                 
                 int index = -1;
                 int string_index = -1;
-                for(int i=3){
+                for(int i=3; i< res.length; i++){
+                    if(res[i].equalsIgnoreCase("values")){
+                       index = i;
+                   }
+
+                   if(res[i].equalsIgnoreCase("select")){
+                       string_index = i;
+                   }
                     
                 }
+                //No values for inserting into tables
+                if(index<0 && s_index<0){
+                   System.out.print("No values are inserted into the program. Please try again.");
+                   return false;
+                }
+                
+                if(index>0){
+                    StringBuilder string_builder = new StringBuilder();
+                    for(int i = 3; i< index; i++){
+                        string_builder.append(res[i] + " ");
+                    }
+                    String temp = string_builder.toString();
+                    if(temp.charAt(0) == '(' && temp.indexOf(")") > 0){
+                        String sub = temp.substring(1, temp.indexO(")"));
+                        String args[] = sub.split(",");
+                        for(int j = 0; j < args.length; j++){
+                            
+                            args[j] = args[j].trim();
+                            String[] field = args[j].split(" ");
+                            if (field.length != 1) {
+                                System.out.print("Wrong Argument Format inside INSERT into");
+                                return false;
+                            } else {
+                                Argument argumentSub = new Argument(null, field[0]);
+                                argumentList.add(argumentSub);
+                            }
+                            
+                        }
+                    }else{
+                        System.out.print("Paranethesis were not found!");
+                        return false;
+                    }
+            
+                    string_builder = new StringBuilder();
+                    for(int i = string_index; i< res.length; i++){
+                        string_builder.append(res[i] + " ");
+                        
+                    }
+                    
+                    System.out.println("Processing selection parses")
+                    return selectedParse(string_builder.toString().split(" "));
+                    
+                }
+                
+                
+                
             }
         }
+    }
+    private boolean selectedParse(String[] res){
+        select = new TreeNode();
+        
     }
     public void reset(){
         sentence = null
