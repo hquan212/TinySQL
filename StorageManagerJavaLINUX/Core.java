@@ -88,7 +88,7 @@ public class Core {
 	
 	public void delete_core(){
 
-		String toupleName = parse.delete.t_names.get(0);
+		String toupleName = parse.delete.table_names.get(0);
 		Relation tableToDelete = schema_manager.getRelation(toupleName);
 		int toupleBlocks = deleted_table.getNumOfBlocks();
 		if (toupleBlocks == 0){
@@ -141,8 +141,8 @@ public class Core {
         ArrayList<FieldType> fieldType = new ArrayList<FieldType>();
         ArrayList<String> fieldNames = new ArrayList<String>();
         
-        for (int i=0; i<parse.arg.size(); i++) {
-            String name = parse.arg.get(i).name;
+        for (int i=0; i<parse.argumentList.size(); i++) {
+            String name = parse.argumentList.get(i).name;
             fieldNames.add(name);
             if (name.equalsIgnoreCase("INT")) { fieldType.add(FieldType.INT); }
             else if (name.equalsIgnoreCase("STR20")) { fieldType.add(FieldType.STR20); }
@@ -172,12 +172,12 @@ public class Core {
         
         if (parse.select == null ){
             for (int i=0; i< tuple.getNumOfFields(); i++) {
-                if ( relationSchema.getFieldType(parse.arg.get(i).name == FieldType.STR20) {
+                if ( relationSchema.getFieldType(parse.argumentList.get(i).name == FieldType.STR20) {
                     String val = parse.values.get(i).replaceAll("\"", "");
-                    tuple.setField(parse.arg.get(i).name, value);
+                    tuple.setField(parse.argumentList.get(i).name, value);
                 }
                 else {
-                    tuple.setField(parse.arg.get(i).name, Integer.parseInt(parse.values.get(i)));
+                    tuple.setField(parse.argumentList.get(i).name, Integer.parseInt(parse.values.get(i)));
                 }
             }
             appendTupleToRelation(relationToInsert, mem, 2, tuple);
@@ -201,7 +201,7 @@ public class Core {
         }
     }
     
-    private Relation onePass(ArrayList<String) t_names){
+    private Relation onePass(ArrayList<String> t_names){
     	
     	Schema onePass = schemaCombine(t_names);
     	Relation operation = schema_manager.createRelation("opr", onePass);
@@ -240,6 +240,7 @@ public class Core {
     	return operation;
     }
     
+           
     private ArrayList<Tuple> onePassMemory(ArrayList<Tuple> tList, int num, int time, ArrayList<String> tups, int totalTups){
     	
     	if(time==(num-1)){
@@ -307,6 +308,28 @@ public class Core {
 		return tList;
     	
     }
+           
+    private Schema merge_schema(ArrayList<String> tableNames){
+    	
+    	Shema[] schm_a = new Schema[tableNames.size()];
+    	ArrayList<String> joinFildName = new ArrayList<String>();
+    	ArrayList<FieldType> joinedFileTypes = new ArrayList<FieldType>();
+    	
+    	for (int i=0; i< schm_a.length; i++) {
+    		schm_a[i] = schema_manager.getSchema(tableNames.get(i));
+			ArrayList<String> field_names =schm_a[i].getFieldNames();
+		    for(int j=0; j<field_names.size() ;j++){
+				String new_name = tableNames.get(i) + "." + field_names.get(j);
+				field_names.set(j, new_name);
+			}
+		    joinFildName.addAll(field_names);
+		    joinedFileTypes.addAll(schm_a[i].getFieldTypes());
+		}
+		
+	    Schema joined_schema = new Schema(joinFildName,joinedFileTypes);
+	    return joined_schema;
+    	}
+    
 }
         
         
