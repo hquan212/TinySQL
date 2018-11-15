@@ -240,6 +240,75 @@ public class Core {
     	return operation;
     }
     
+           
+    private ArrayList<Tuple> onePassMemory(ArrayList<Tuple> tList, int num, int time, ArrayList<String> tups, int totalTups){
+    	
+    	if(time==(num-1)){
+    		
+			int rxTime=schema_manager.getRelation(tups.get(time)).getNumOfTuples();
+			int rx=totalTups/rxTime;
+			int fNums=tList.get(0).getNumOfFields();
+			
+			
+			for(int i=0;i<rxTime;i++){
+				
+				for(int j=i*rx;j<(rx*(i+1));j++){
+					
+					int fieldNums=schema_manager.getSchema(tups.get(time)).getNumOfFields();
+					for(int k=0;k<fieldNums;k++){
+						
+					 if(tList.get(j).getField(fNums-1-k).type==FieldType.STR20){
+						tList.get(j).setField(fNums-1-k,mem.getBlock(time).getTuple(i).getField(fieldNums-k-1).str);
+					 	
+					 }
+					 else{
+					    tList.get(j).setField(fNums-1-k,mem.getBlock(time).getTuple(i).getField(fieldNums-k-1).integer);
+					 	
+						}
+					 }
+					 
+					}
+				}
+				
+			return tList;
+			}			
+			
+		
+         tList=onePassMemory(tList,num,time+1,tups,totalTups);
+         int rxTime=schema_manager.getRelation(tups.get(time)).getNumOfTuples();
+		 int rx=totalTups/rxTime;
+		 int fNums=tList.get(0).getNumOfFields();
+         int previousFnums=0;
+         
+         
+         for(int i=0;i<time;i++){
+        	 previousFnums=schema_manager.getSchema(tups.get(i)).getNumOfFields()+previousFnums;
+        	 
+         }
+         
+         for(int i=0;i<rxTime;i++){
+         	
+				for(int j=i*rx;j<(rx*(i+1));j++){
+					
+					int fieldNums=schema_manager.getSchema(tups.get(time)).getNumOfFields();
+					for(int k=0;k<fieldNums;k++){
+					 if(tList.get(j).getField(previousFnums+k).type==FieldType.STR20){
+						tList.get(j).setField(previousFnums+k,mem.getBlock(time).getTuple(i).getField(k).str);
+					 	
+					 }
+					 else{
+					    tList.get(j).setField(previousFnums+k,mem.getBlock(time).getTuple(i).getField(k).integer);
+					 	
+						}
+					 }
+					}
+				}
+         
+         
+		return tList;
+    	
+    }
+           
     private Schema merge_schema(ArrayList<String> tableNames){
     	
     	Shema[] schm_a = new Schema[tableNames.size()];
