@@ -201,6 +201,21 @@ public class Core {
         }
     }
     
+    public Relation select_core(){
+    	Relation joined_table;
+    	boolean one_pass = true;
+    	for(int i = 0; i< parse.select.table_names.size(); i++){
+    		if(schema_manager.getRelation(parse.select.table_names.get(i)).getNumOfBlocks() != 1){
+    			one_pass = false;
+    		}
+    	}
+    	if(one_pass&&parse.select.table_names.size()>1){
+    		System.out.println("Using one-pass algortithm");
+    		joined_table= onePass(parse.select.table_names);
+    		if(parse.select.w_clause == null && parse.select.ar)
+    	}
+    }
+    
     private Relation onePass(ArrayList<String) t_names){
     	
     	Schema onePass = schemaCombine(t_names);
