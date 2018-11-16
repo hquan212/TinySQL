@@ -15,7 +15,7 @@ public class Core {
 	public MainMemory mem;
 	public Disk disk;
 	public SchemaManager schema_manager;
-	public Executor(){
+	public Core(){
 		parse = new Parser();
 		mem=new MainMemory();
 		disk=new Disk();
@@ -28,10 +28,10 @@ public class Core {
 	    
 		if(parse.syntax(stm)){
 		   if(parse.key_word.get(0).equalsIgnoreCase("create")){
-			   create_execute();
+			   create_core();
 		   }
 		   else if(parse.key_word.get(0).equalsIgnoreCase("insert")){
-			   insert_execute();
+			   insert_core();
 			   if(schema_manager.relationExists("return_relation")) {
 			       schema_manager.deleteRelation("return_relation");
 			       
@@ -43,15 +43,15 @@ public class Core {
 			}
 			
 		   else if(parse.key_word.get(0).equalsIgnoreCase("drop")){
-			   drop_execute();
+			   drop_core();
 		   }
 		   
 		   else if(parse.key_word.get(0).equalsIgnoreCase("delete")){
-			   delete_execute();
+			   delete_core();
 		   }
 		   
 		   else if(parse.key_word.get(0).equalsIgnoreCase("select")){
-			   Relation r=select_execute();
+			   Relation r=select_core();
 			   System.out.println(r);
 			   if(r.getRelationName().contains(",")) {
 				   schema_manager.deleteRelation(r.getRelationName());
@@ -90,7 +90,7 @@ public class Core {
 
 		String toupleName = parse.delete.table_names.get(0);
 		Relation tableToDelete = schema_manager.getRelation(toupleName);
-		int toupleBlocks = deleted_table.getNumOfBlocks();
+		int toupleBlocks = tableToDelete.getNumOfBlocks();
 		if (toupleBlocks == 0){
 		    System.out.println("The table is already empty!");
 		}
@@ -111,7 +111,7 @@ public class Core {
 		        numBlocks = Config.NUM_OF_BLOCKS_IN_MEMORY;
 		    }
 		    tableToDelete.getBlocks(i * Config.NUM_OF_BLOCKS_IN_MEMORY, 0, numBlocks);
-		    blah treeToDelete = parse.delete.w_clause;        //"update later"
+		    SubTreeNode treeToDelete = parse.delete.w_clause;        //"update later"
 		    for (int j =0; j<numBlocks; j++){
 		        Block b = mem.getBlock(j);
 		        if (treeToDelete == null){
@@ -125,7 +125,7 @@ public class Core {
 		        }
 		        
 		        for (int k = 0; k <tupleList.size(); k++){
-		            if(treeToDelete = null || where_judge(treeToDelete, tupleList.get(k))){
+		            if(treeToDelete == null || where_judge(treeToDelete, tupleList.get(k))){
 		                b.invalidateTuple(k);
 		            }
 		        }
@@ -166,15 +166,15 @@ public class Core {
         if(!schema_manager.relationExists(toTableName)) {
             System.out.println("Table does not exist!");
         }
-        Realation relationToInsert = schema_manager.getRelation(toTableName);
+        Relation relationToInsert = schema_manager.getRelation(toTableName);
         Tuple tuple = relationToInsert.createTuple();
         Schema relationSchema = relationToInsert.getSchema();
         
         if (parse.select == null ){
             for (int i=0; i< tuple.getNumOfFields(); i++) {
-                if ( relationSchema.getFieldType(parse.argumentList.get(i).name == FieldType.STR20) {
+                if ( relationSchema.getFieldType(parse.argumentList.get(i).name) == FieldType.STR20) {
                     String val = parse.values.get(i).replaceAll("\"", "");
-                    tuple.setField(parse.argumentList.get(i).name, value);
+                    tuple.setField(parse.argumentList.get(i).name, val);
                 }
                 else {
                     tuple.setField(parse.argumentList.get(i).name, Integer.parseInt(parse.values.get(i)));
@@ -188,7 +188,7 @@ public class Core {
             Schema tempSchema = new Schema(selectedRelation.getSchema());
             Relation tempRelation = schema_manager.createRelation("TemporarySchema", tempSchema);
             
-            for (int i=0; i<selected_relation.getNumOfBlocks(); i++) {
+            for (int i=0; i<selectedRelation.getNumOfBlocks(); i++) {
                 selectedRelation.getBlock(i, 9);
                 tempRelation.setBlock(i, 9);
             }
@@ -217,22 +217,22 @@ public class Core {
     	}
     	
     	for (int i=0; i < n; i++){
-    		Tuple temp = operation.createTuple()
+    		Tuple temp = operation.createTuple();
     		tList.add(temp);
     	}
     	
-    	if(parse.select.distinct == false&&parse.select.order == false&&parse.select.w_clause==null&&parse.select.arg.get(0.equalsIgnoreCase("*")){
-    		System.out.println(onePass);
+    	if(parse.select.distinct==false&&parse.select.order==false&&parse.select.w_clause==null&&parse.select.argument.get(0).equalsIgnoreCase("*")){
+			System.out.println(onePass);
     	}
     	
-    	tList = onePassMemory (t.t_names.size(), 0, t_names, n);
-    	for (int i = 0; i < tList.size(), 0, t_names, n) {
-    		if(parse.select.distinct == false&&parse.select.order == false&&parse.select.w_clause==null&&parse.select.arg.get(0.equalsIgnoreCase("*")) {
+    	tList = onePassMemory(tList, t_names.size(), 0, t_names, n);
+    	for (int i = 0; i < tList.size(); i++) {
+    		if(parse.select.distinct == false&&parse.select.order == false&&parse.select.w_clause==null&&parse.select.argument.get(0).equalsIgnoreCase("*")) {
     			System.out.println(tList.get(i));
     		}
     		
     		else {
-    			appendTuple(operation, mem, 9, tList.get(i));
+    			appendTupleToRelation(operation, mem, 9, tList.get(i));
     		}
     		
     	}
@@ -309,9 +309,9 @@ public class Core {
     	
     }
            
-    private Schema merge_schema(ArrayList<String> tableNames){
+    private Schema schemaCombine(ArrayList<String> tableNames){
     	
-    	Shema[] schm_a = new Schema[tableNames.size()];
+    	Schema[] schm_a = new Schema[tableNames.size()];
     	ArrayList<String> joinFildName = new ArrayList<String>();
     	ArrayList<FieldType> joinedFileTypes = new ArrayList<FieldType>();
     	
@@ -328,7 +328,536 @@ public class Core {
 		
 	    Schema joined_schema = new Schema(joinFildName,joinedFileTypes);
 	    return joined_schema;
+    }
+    
+    private String natural_join(String t_1, String t_2, String attr) {
+    	
+    	Relation r1 = schema_manager.getRelation(t_1);
+    	Relation r2 = schema_manager.getRelation(t_2);
+    	ArrayList<FieldType> fieldType1 = r1.getSchema().getFieldTypes();
+    	ArrayList<FieldType> fieldType2 = r2.getSchema().getFieldTypes();
+    	fieldType1.addAll(fieldType2);
+    	ArrayList<String> newFields = new ArrayList<String>();
+    	
+      	// Add the names of the fields to a total list
+    	//Check for r1
+    	if (r1.getSchema().getFieldNames().get(0).contains(".")) {
+    		newFields = r1.getSchema().getFieldNames();
     	}
+    	else {
+    		for (int i=0; i < r1.getSchema().getNumOfFields(); i++) {
+    			String name = t_1 + "." + r1.getSchema().getFieldNames().get(i);
+    			newFields.add(name);
+    		}
+    	}
+    	
+    	// Check for r2
+    	if (r2.getSchema().getFieldNames().get(0).contains(".")) {
+    		newFields.addAll(r2.getSchema().getFieldNames());
+    	}
+    	else {
+    		for (int i=0; i < r2.getSchema().getNumOfFields(); i++) {
+    			String name = t_2 + "." + r2.getSchema().getFieldNames().get(i);
+    			newFields.add(name);
+    		}
+    	}
+    	
+    	String n_j_name = t_1 + "," + t_2;
+    	Schema n_j_schema = new Schema(newFields, fieldType1);
+    	Relation njr = schema_manager.createRelation(n_j_name, n_j_schema);
+    	ArrayList<String> n_j_field = new ArrayList<String>();
+    	n_j_field.add(attr);
+    	
+    	//first pass
+    	r1 = first_pass(r1, n_j_field);
+    	r2 = first_pass(r2, n_j_field);
+    	
+    	//second pass
+    	Heap heap1 = new Heap(80,n_j_field);
+    	Heap heap2 = new Heap(80,n_j_field);
+    	int r1_blocks = r1.getNumOfBlocks();
+    	int r2_blocks = r2.getNumOfBlocks();
+    	int sb_num1 = 0;
+    	if(r1_blocks%Config.NUM_OF_BLOCKS_IN_MEMORY==0){
+    		sb_num1=r1_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY;
+    	}
+    	else{
+    		sb_num1=r1_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY+1;
+    	}
+    	int sb_num2 = 0;
+    	if(r2_blocks%Config.NUM_OF_BLOCKS_IN_MEMORY==0){
+    		sb_num2=r2_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY;
+    	}
+    	else{
+    		sb_num2=r2_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY+1;
+    	}
+    	
+    	for(int i=0; i<sb_num1; i++){//put the first block of each sublist of relation1 into memory, starting from 0
+	    	r1.getBlock(i*Config.NUM_OF_BLOCKS_IN_MEMORY, i);
+	    	Tuple_with_position tuple_with_p = new Tuple_with_position(mem.getBlock(i).getTuple(0),i,0,0);
+			heap1.insert(tuple_with_p);
+    	}
+    	for(int i=0; i<sb_num2; i++){//put the first block of each sublist of relation2 into memory, starting from sublistNum1
+	    	r2.getBlock(i*Config.NUM_OF_BLOCKS_IN_MEMORY, i+sb_num1);
+	    	Tuple_with_position tuple_with_p = new Tuple_with_position(mem.getBlock(i+sb_num1).getTuple(0),i+sb_num1,0,0);
+			heap2.insert(tuple_with_p);
+    	}
+    	while(heap1.size>0 && heap2.size>0){
+	    	Tuple_with_position t_p_1 = heap1.pop_min();
+			Tuple_with_position t_p_2 = heap2.pop_min();
+			heap1.insert(t_p_1);
+			heap2.insert(t_p_2);
+			
+			if(t_p_1.tuple.getField(attr).integer>t_p_2.tuple.getField(attr).integer){
+				Tuple_with_position t_p_temp=heap2.pop_min();
+				if(t_p_temp.tuple_pointer<mem.getBlock(t_p_temp.sublist_pointer).getNumTuples()-1){
+					Tuple tuple=mem.getBlock(t_p_temp.sublist_pointer).getTuple(t_p_temp.tuple_pointer+1);
+					heap2.insert(new Tuple_with_position(tuple,t_p_temp.sublist_pointer,t_p_temp.block_pointer,t_p_temp.tuple_pointer+1));
+				}
+				else if(t_p_temp.block_pointer<9 && (t_p_temp.sublist_pointer-sb_num1)*10+t_p_temp.block_pointer<r2_blocks-1){
+				    t_p_temp.block_pointer++;
+				    r2.getBlock((t_p_temp.sublist_pointer-sb_num1)*10+t_p_temp.block_pointer,t_p_temp.sublist_pointer);
+				    heap2.insert(new Tuple_with_position(mem.getBlock(t_p_temp.sublist_pointer).getTuple(0),t_p_temp.sublist_pointer,t_p_temp.block_pointer,0));
+				}
+			}
+			else if(t_p_1.tuple.getField(attr).integer<t_p_2.tuple.getField(attr).integer){
+				Tuple_with_position t_p_temp=heap1.pop_min();
+				if(t_p_temp.tuple_pointer<mem.getBlock(t_p_temp.sublist_pointer).getNumTuples()-1){
+					Tuple tuple=mem.getBlock(t_p_temp.sublist_pointer).getTuple(t_p_temp.tuple_pointer+1);
+					heap1.insert(new Tuple_with_position(tuple,t_p_temp.sublist_pointer,t_p_temp.block_pointer,t_p_temp.tuple_pointer+1));
+				}
+				else if(t_p_temp.block_pointer<9 && t_p_temp.sublist_pointer*10+t_p_temp.block_pointer<r1_blocks-1){
+				    t_p_temp.block_pointer++;
+				    r1.getBlock(t_p_temp.sublist_pointer*10+t_p_temp.block_pointer,t_p_temp.sublist_pointer);
+				    heap1.insert(new Tuple_with_position(mem.getBlock(t_p_temp.sublist_pointer).getTuple(0),t_p_temp.sublist_pointer,t_p_temp.block_pointer,0));
+				}
+			}
+			else{
+				Tuple_with_position t_p_1_temp = heap1.pop_min();
+				Tuple_with_position t_p_2_temp = heap2.pop_min();
+				if(t_p_2_temp.tuple_pointer<mem.getBlock(t_p_2_temp.sublist_pointer).getNumTuples()-1){
+					Tuple tuple=mem.getBlock(t_p_2_temp.sublist_pointer).getTuple(t_p_2_temp.tuple_pointer+1);
+					heap2.insert(new Tuple_with_position(tuple,t_p_2_temp.sublist_pointer,t_p_2_temp.block_pointer,t_p_2_temp.tuple_pointer+1));
+				}
+				else if(t_p_2_temp.block_pointer<9 && (t_p_2_temp.sublist_pointer-sb_num1)*10+t_p_2_temp.block_pointer<r2_blocks-1){
+				    t_p_2_temp.block_pointer++;
+				    r2.getBlock((t_p_2_temp.sublist_pointer-sb_num1)*10+t_p_2_temp.block_pointer,t_p_2_temp.sublist_pointer);
+				    heap2.insert(new Tuple_with_position(mem.getBlock(t_p_2_temp.sublist_pointer).getTuple(0),t_p_2_temp.sublist_pointer,t_p_2_temp.block_pointer,0));
+				}
+				if(t_p_1_temp.tuple_pointer<mem.getBlock(t_p_1_temp.sublist_pointer).getNumTuples()-1){
+					Tuple tuple=mem.getBlock(t_p_1_temp.sublist_pointer).getTuple(t_p_1_temp.tuple_pointer+1);
+					heap1.insert(new Tuple_with_position(tuple,t_p_1_temp.sublist_pointer,t_p_1_temp.block_pointer,t_p_1_temp.tuple_pointer+1));
+				}
+				else if(t_p_1_temp.block_pointer<9 && t_p_1_temp.sublist_pointer*10+t_p_1_temp.block_pointer<r1_blocks-1){
+				    t_p_1_temp.block_pointer++;
+				    r1.getBlock(t_p_1_temp.sublist_pointer*10+t_p_1_temp.block_pointer,t_p_1_temp.sublist_pointer);
+				    heap1.insert(new Tuple_with_position(mem.getBlock(t_p_1_temp.sublist_pointer).getTuple(0),t_p_1_temp.sublist_pointer,t_p_1_temp.block_pointer,0));
+				}
+    	        Tuple tuple1=t_p_1_temp.tuple;
+    	        Tuple tuple2=t_p_2_temp.tuple;
+    	        Tuple njt=njr.createTuple();
+    	        int t1_fields=tuple1.getNumOfFields();
+    	        
+    	        for(int k=0;k<t1_fields;k++){
+	    	        if(tuple1.getField(k).type == FieldType.INT){
+	    				njt.setField(k,tuple1.getField(k).integer);
+	    			}
+	    			else{
+	    				njt.setField(k,tuple1.getField(k).str);
+	    			}	
+    	        }
+    	        
+    	        for(int n=0;n<tuple2.getNumOfFields();n++){
+    	        	if(tuple2.getField(n).type == FieldType.INT){
+        				njt.setField(n+t1_fields,tuple2.getField(n).integer);
+        			}
+        			else{
+        				njt.setField(n+t1_fields,tuple2.getField(n).str);
+        			}	
+    	        }
+    	        appendTupleToRelation(njr,mem,9,njt);
+    	        Tuple_with_position pop1=heap1.pop_min();
+    	        Tuple_with_position pop2=heap2.pop_min();
+    	        Tuple compare_1=pop1.tuple;
+    	        Tuple compare_2=pop2.tuple;
+    	        heap1.insert(pop1);
+    	        heap2.insert(pop2);
+    	        
+    	        while(heap1.size>0 && heap1.compare_tuple(tuple1, compare_1)==0){
+					Tuple_with_position new_tp1 = heap1.pop_min();
+					//process newTuplePlus1,tuplePlus2;
+					Tuple new_tuple1=new_tp1.tuple;
+					t1_fields=new_tuple1.getNumOfFields();
+	    	        Tuple new_njt=njr.createTuple();
+	    	        for(int k=0;k<t1_fields;k++){
+	    	        if(new_tuple1.getField(k).type == FieldType.INT){
+	    				new_njt.setField(k,new_tuple1.getField(k).integer);
+	    			}
+	    			else{
+	    				new_njt.setField(k,new_tuple1.getField(k).str);
+	    			}	
+	    	        }
+	    	        for(int n=0;n<tuple2.getNumOfFields();n++){
+	    	        	if(tuple2.getField(n).type == FieldType.INT){
+	        				new_njt.setField(n+t1_fields,tuple2.getField(n).integer);
+	        			}
+	        			else{
+	        				new_njt.setField(n+t1_fields,tuple2.getField(n).str);
+	        			}	
+	    	        }
+	    	        appendTupleToRelation(njr,mem,9,new_njt);
+					
+					
+	    	        Tuple_with_position t_p_temp=new_tp1;
+					if(t_p_temp.tuple_pointer<mem.getBlock(t_p_temp.sublist_pointer).getNumTuples()-1){
+						Tuple tuple=mem.getBlock(t_p_temp.sublist_pointer).getTuple(t_p_temp.tuple_pointer+1);
+						heap1.insert(new Tuple_with_position(tuple,t_p_temp.sublist_pointer,t_p_temp.block_pointer,t_p_temp.tuple_pointer+1));
+					}
+					else if(t_p_temp.block_pointer<9 && t_p_temp.sublist_pointer*10+t_p_temp.block_pointer<r1_blocks-1){
+					    t_p_temp.block_pointer++;
+					    r1.getBlock(t_p_temp.sublist_pointer*10+t_p_temp.block_pointer,t_p_temp.sublist_pointer);
+					    heap1.insert(new Tuple_with_position(mem.getBlock(t_p_temp.sublist_pointer).getTuple(0),t_p_temp.sublist_pointer,t_p_temp.block_pointer,0));
+					}
+					if(heap1.size>0){
+		    	        Tuple_with_position temp1=heap1.pop_min();
+		    	        heap1.insert(temp1);
+						compare_1=temp1.tuple;
+					}
+					
+				}
+    	        
+    	        while(heap2.size>0 && heap2.compare_tuple(tuple2, compare_2)==0){
+					Tuple_with_position new_tp2 = heap2.pop_min();
+					//process newTuplePlus1,tuplePlus2;
+					Tuple new_tuple2=new_tp2.tuple;
+	    	        Tuple new_njt=njr.createTuple();
+	    	        for(int k=0;k<t1_fields;k++){
+	    	        if(tuple1.getField(k).type == FieldType.INT){
+	    				new_njt.setField(k,tuple1.getField(k).integer);
+	    			}
+	    			else{
+	    				new_njt.setField(k,tuple1.getField(k).str);
+	    			}	
+	    	        }
+	    	        for(int n=0;n<new_tuple2.getNumOfFields();n++){
+	    	        	if(new_tuple2.getField(n).type == FieldType.INT){
+	        				new_njt.setField(n+t1_fields,new_tuple2.getField(n).integer);
+	        			}
+	        			else{
+	        				new_njt.setField(n+t1_fields,new_tuple2.getField(n).str);
+	        			}	
+	    	        }
+	    	        appendTupleToRelation(njr,mem,9,new_njt);
+					
+					
+	    	        Tuple_with_position t_p_temp=new_tp2;
+	    	        if(t_p_temp.tuple_pointer<mem.getBlock(t_p_temp.sublist_pointer).getNumTuples()-1){
+						Tuple tuple=mem.getBlock(t_p_temp.sublist_pointer).getTuple(t_p_temp.tuple_pointer+1);
+						heap2.insert(new Tuple_with_position(tuple,t_p_temp.sublist_pointer,t_p_temp.block_pointer,t_p_temp.tuple_pointer+1));
+					}
+					else if(t_p_temp.block_pointer<9 && (t_p_temp.sublist_pointer-sb_num1)*10+t_p_temp.block_pointer<r2_blocks-1){
+					    t_p_temp.block_pointer++;
+					    r2.getBlock((t_p_temp.sublist_pointer-sb_num1)*10+t_p_temp.block_pointer,t_p_temp.sublist_pointer);
+					    heap2.insert(new Tuple_with_position(mem.getBlock(t_p_temp.sublist_pointer).getTuple(0),t_p_temp.sublist_pointer,t_p_temp.block_pointer,0));
+					}
+	    	        if(heap2.size>0){
+	    	        Tuple_with_position temp2=heap2.pop_min();
+	    	        heap2.insert(temp2);
+					compare_2=temp2.tuple;
+	    	        }
+	    	        
+	    	        
+				}
+		
+			}
+    	}
+		return n_j_name;
+		
+	}
+	
+    private Relation first_pass(Relation return_relation, ArrayList<String> field_names){
+//		 if(return_relation.getSchema().getFieldNames().contains(field_names.get(0))){
+//			 return return_relation;
+//		 }
+		 Heap heap=new Heap(80,field_names);
+		 int num_blocks=return_relation.getNumOfBlocks();
+		 int scan_times=0;
+		 if(num_blocks%Config.NUM_OF_BLOCKS_IN_MEMORY==0)  scan_times=num_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY;
+		 else scan_times=num_blocks/Config.NUM_OF_BLOCKS_IN_MEMORY+1;
+		 
+		 for(int i=0;i<scan_times;i++){
+			 if(num_blocks-Config.NUM_OF_BLOCKS_IN_MEMORY*i>=Config.NUM_OF_BLOCKS_IN_MEMORY){
+				 
+				 return_relation.getBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, Config.NUM_OF_BLOCKS_IN_MEMORY);
+				 for(int j=0;j<Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
+					 Block sort_block=mem.getBlock(j);
+					 if(sort_block.isEmpty()) {continue;}
+					 int d=sort_block.getNumTuples();
+					 for(int k=0;k<sort_block.getNumTuples();k++){
+						 Tuple sort_tuple=sort_block.getTuple(k);
+						 if(sort_tuple.isNull())  {continue;}
+						 Tuple_with_position tp=new Tuple_with_position(sort_tuple,0,0,0);
+						 heap.insert(tp);
+					 }
+				 }
+				 for(int j=0;j<Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
+					 Block sorted_block=mem.getBlock((j));
+					 sorted_block.clear();
+					 while(!sorted_block.isFull() && heap.size>0){
+						 Tuple_with_position tp= heap.pop_min();
+						 sorted_block.appendTuple(tp.tuple);
+					    }
+					}
+				 return_relation.setBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, Config.NUM_OF_BLOCKS_IN_MEMORY);
+			 }
+			 else{
+				 return_relation.getBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY);
+				 for(int j=0;j<num_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
+					 Block sort_block=mem.getBlock(j);
+					 if(sort_block.isEmpty()) {continue;}
+					 for(int k=0;k<sort_block.getNumTuples();k++){
+						 Tuple sort_tuple=sort_block.getTuple(k);
+						 if(sort_tuple.isNull())  {continue;}
+						 Tuple_with_position tp=new Tuple_with_position(sort_tuple,0,0,0);
+						 heap.insert(tp);
+					 }
+				 }
+				 for(int j=0;j<num_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY;j++){
+					 Block sorted_block=mem.getBlock((j));
+					 sorted_block.clear();
+					 while(!sorted_block.isFull() && heap.size>0){
+						 Tuple_with_position tp= heap.pop_min();
+						 sorted_block.appendTuple(tp.tuple);
+					    }
+					}
+				 return_relation.setBlocks(i*Config.NUM_OF_BLOCKS_IN_MEMORY, 0, num_blocks-i*Config.NUM_OF_BLOCKS_IN_MEMORY); 
+			 }
+		 }
+		 return return_relation;
+	 }
+	
+	private static void appendTupleToRelation(Relation relation_reference, MainMemory mem, int memory_block_index, Tuple tuple) {
+	    Block block_reference;
+	    if (relation_reference.getNumOfBlocks()==0) {
+//		      System.out.print("The relation is empty" + "\n");
+//		      System.out.print("Get the handle to the memory block " + memory_block_index + " and clear it" + "\n");
+	      block_reference=mem.getBlock(memory_block_index);
+	      block_reference.clear(); //clear the block
+	      block_reference.appendTuple(tuple); // append the tuple
+//		      System.out.print("Write to the first block of the relation" + "\n");
+	      relation_reference.setBlock(relation_reference.getNumOfBlocks(),memory_block_index);
+	    } else {
+//		      System.out.print("Read the last block of the relation into memory block 5:" + "\n");
+	      relation_reference.getBlock(relation_reference.getNumOfBlocks()-1,memory_block_index);
+	      block_reference=mem.getBlock(memory_block_index);
+
+	      if (block_reference.isFull()) {
+//		        System.out.print("(The block is full: Clear the memory block and append the tuple)" + "\n");
+	        block_reference.clear(); //clear the block
+	        block_reference.appendTuple(tuple); // append the tuple
+//		        System.out.print("Write to a new block at the end of the relation" + "\n");
+	        relation_reference.setBlock(relation_reference.getNumOfBlocks(),memory_block_index); //write back to the relation
+	      } else {
+//		        System.out.print("(The block is not full: Append it directly)" + "\n");
+	        block_reference.appendTuple(tuple); // append the tuple
+//		        System.out.print("Write to the last block of the relation" + "\n");
+	        relation_reference.setBlock(relation_reference.getNumOfBlocks()-1,memory_block_index); //write back to the relation
+	      }
+	    }
+    }
+    
+	private boolean where_judge(SubTreeNode ExTree, Tuple test_tuple){
+		 if(ExTree==null) return true;
+		 if(calculate(ExTree, test_tuple).equalsIgnoreCase("true")) return true;
+		 else if(calculate(ExTree, test_tuple).equalsIgnoreCase("null")) System.out.println("Syntax Error!");
+		 return false;
+	}
+	
+	// private String calculate(SubTreeNode ExTree, Tuple test_tuple){
+	// 	if(ExTree.left==null){
+	// 		return ExTree.op;
+	//     }
+	// 	if(ExTree.right==null){
+	// 		return ExTree.op;
+	//     }
+	// 	String left="false";
+	// 	String right="false";
+		
+	// 	if(ExTree.left!=null){
+	// 		left=calculate(ExTree.left, test_tuple);
+	// 	}
+	// 	if(ExTree.right!=null){
+	// 	    right=calculate(ExTree.right,test_tuple);
+	// 	}
+	// 	if(ExTree.op.equalsIgnoreCase("&")){
+	// 		if(left.equalsIgnoreCase("true")&&right.equalsIgnoreCase("true")){
+	// 			return "true";
+	// 		}
+	// 		else return "false";
+	// 	}
+	// 	else if(ExTree.op.equalsIgnoreCase("|")){
+	// 		if(left.equalsIgnoreCase("true")||right.equalsIgnoreCase("true")){
+	// 			return "true";
+	// 		}
+	// 		else return "false";
+	// 	}
+	// 	else if(ExTree.op.equalsIgnoreCase("=")){
+	// 		if(Pattern.matches("[0-9]",String.valueOf(left.charAt(0)))){
+	// 		     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+	// 		  if(left.equalsIgnoreCase(right)) return "true";
+	// 		  else return "false";}
+	// 		     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+	// 		    	 int lvalue=Integer.parseInt(left);
+	// 		    	 int rvalue=test_tuple.getField(right).integer;
+	// 		    	 if(lvalue==rvalue) return "true";
+	// 		    	 else return "false";
+	// 		     }
+	// 		}
+	// 		else if(Pattern.matches("[^0-9]",String.valueOf(left.charAt(0)))){
+	// 		     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+	// 		    	 int rvalue=Integer.parseInt(right);
+	// 		    	 int lvalue=test_tuple.getField(left).integer;
+	// 		    	 if(lvalue==rvalue) return "true";
+	// 		    	 else return "false";
+	// 		     }
+	// 		     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+ //                    if(test_tuple.getSchema().fieldNameExists(right)) {
+ //                   	 if(test_tuple.getSchema().fieldNameExists(left)){
+ //                   		 if(test_tuple.getField(left).str!=null){
+ //                   		if(test_tuple.getField(right).str.equalsIgnoreCase(test_tuple.getField(left).str)) return "true";
+ //                   		else return "false";
+ //                   		 }
+ //                   		 else{
+ //                   			 if(test_tuple.getField(right).integer==test_tuple.getField(left).integer) return "true";
+ //                        		else return "false";
+ //                   		 }
+ //                   	 }
+ //                   	 else{
+ //                   		left=left.replaceAll("\"", "");
+ //                   		if(test_tuple.getField(right).str.equalsIgnoreCase(left)) return "true";
+ //                   		else return "false";
+ //                   	 }
+ //                    }
+ //                    else if(!test_tuple.getSchema().fieldNameExists(right)){
+ //                   	 if(test_tuple.getSchema().fieldNameExists(left)){
+ //                   		 right=right.replaceAll("\"", "");
+ //                   		 if(test_tuple.getField(left).str.equalsIgnoreCase(right)) return "true";
+ //                   		 else return "false";
+ //                   	 }
+ //                   	 else{
+ //                   		 if(left.equalsIgnoreCase(right)) return "true";
+ //                   		 else return "false";
+ //                   	 }
+ //                    }
+	// 		     }
+	// 		}
+	// 	}
+	// 	else if(ExTree.op.equalsIgnoreCase("<")){
+	// 		if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
+	// 			if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+	// 		    if(test_tuple.getField(left).integer<test_tuple.getField(right).integer) return "true";
+	// 		    else return "false";
+	// 			}
+	// 			else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+	// 				if(test_tuple.getField(left).integer<Integer.parseInt(right)) return "true";
+	// 			    else return "false";
+	// 			}
+	// 		}
+	// 		else if(Pattern.matches("[0-9]", String.valueOf(left.charAt(0)))){
+	// 			if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+	// 			    if(Integer.parseInt(left)<test_tuple.getField(right).integer) return "true";
+	// 			    else return "false";
+	// 				}
+	// 				else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+	// 					if(Integer.parseInt(left)<Integer.parseInt(right)) return "true";
+	// 				    else return "false";
+	// 				}
+	// 		}
+	// 	}
+	// 	else if(ExTree.op.equalsIgnoreCase(">")){
+	// 		if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
+	// 			if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+	// 		    if(test_tuple.getField(left).integer>test_tuple.getField(right).integer) return "true";
+	// 		    else return "false";
+	// 			}
+	// 			else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+	// 				if(test_tuple.getField(left).integer>Integer.parseInt(right)) return "true";
+	// 			    else return "false";
+	// 			}
+	// 		}
+	// 		else if(Pattern.matches("[0-9]", String.valueOf(left.charAt(0)))){
+	// 			if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+	// 			    if(Integer.parseInt(left)>test_tuple.getField(right).integer) return "true";
+	// 			    else return "false";
+	// 				}
+	// 				else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+	// 					if(Integer.parseInt(left)>Integer.parseInt(right)) return "true";
+	// 				    else return "false";
+	// 				}
+	// 		}
+	// 	}
+	// 	else if(ExTree.op.equalsIgnoreCase("+")  || ExTree.op.equalsIgnoreCase("-")  || ExTree.op.equalsIgnoreCase("*")  || ExTree.op.equalsIgnoreCase("/")){
+	// 		if(Pattern.matches("[0-9]",String.valueOf(left.charAt(0)))){
+	// 			     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+	// 			    	 int temp=0;
+	// 			    	 if(ExTree.op.equalsIgnoreCase("+")){
+	// 			    	  temp=Integer.parseInt(left)+Integer.parseInt(right);}
+	// 			    	 else if(ExTree.op.equalsIgnoreCase("-")){
+	// 				      temp=Integer.parseInt(left)-Integer.parseInt(right);}
+	// 			    	 else if(ExTree.op.equalsIgnoreCase("*")){
+	// 				    	  temp=Integer.parseInt(left)*Integer.parseInt(right);}
+	// 			    	 else if(ExTree.op.equalsIgnoreCase("/")){
+	// 				    	  temp=Integer.parseInt(left)/Integer.parseInt(right);}
+	// 			    	  return String.valueOf(temp);	             //如果是左边的是数字，那右边也得是数字或者字符
+	// 			     }
+	// 			     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+	// 			    	  int right_value=test_tuple.getField(right).integer;
+	// 			    	  int temp=0;
+	// 				      if(ExTree.op.equalsIgnoreCase("+")){
+	// 			    	  temp=Integer.parseInt(left)+right_value;}
+	// 				      else if(ExTree.op.equalsIgnoreCase("-")){
+	// 				    	  temp=Integer.parseInt(left)-right_value;}
+	// 				      else if(ExTree.op.equalsIgnoreCase("*")){
+	// 				    	  temp=Integer.parseInt(left)*right_value;}
+	// 				      else if(ExTree.op.equalsIgnoreCase("/")){
+	// 				    	  temp=Integer.parseInt(left)/right_value;}
+	// 			    	  return String.valueOf(temp);
+	// 			     }
+	// 		}
+	// 		else if(Pattern.matches("[0-9]",String.valueOf(right.charAt(0)))){
+	// 		          if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
+	// 		    	  int left_value=test_tuple.getField(left).integer;
+	// 		    	  int temp=0;
+	// 			      if(ExTree.op.equalsIgnoreCase("+")){
+	// 		    	  temp=Integer.parseInt(right)+left_value;}
+	// 			      else if(ExTree.op.equalsIgnoreCase("-")){
+	// 			    	   temp=Integer.parseInt(right)-left_value;}
+	// 			      else if(ExTree.op.equalsIgnoreCase("*")){
+	// 			    	   temp=Integer.parseInt(right)*left_value;}
+	// 			      else if(ExTree.op.equalsIgnoreCase("/")){
+	// 			    	   temp=Integer.parseInt(right)/left_value;}
+	// 		    	  return String.valueOf(temp);
+	// 		     }
+	// 	    }
+	// 		else if(Pattern.matches("[^0-9]",String.valueOf(left.charAt(0)))&&Pattern.matches("[^0-9]",String.valueOf(right.charAt(0)))){
+	// 			int left_value=test_tuple.getField(left).integer;
+	// 			int right_value=test_tuple.getField(right).integer;
+	// 			int temp=0;
+	// 		      if(ExTree.op.equalsIgnoreCase("+")){
+	// 	         temp=right_value+left_value;}
+	// 		      else if(ExTree.op.equalsIgnoreCase("-")){
+	// 			         temp=right_value-left_value;}
+	// 		      else if(ExTree.op.equalsIgnoreCase("*")){
+	// 			         temp=right_value*left_value;}
+	// 		      else if(ExTree.op.equalsIgnoreCase("/")){
+	// 			         temp=right_value/left_value;}
+	// 	        return String.valueOf(temp);
+	// 		}
+			
+	// 	}
+	// 	 return "null";
+	// }
+	
     
 }
         

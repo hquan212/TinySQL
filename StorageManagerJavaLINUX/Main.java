@@ -14,15 +14,15 @@ public class Main{
         long t0 = System.currentTimeMillis();
         
         try{
-            // Core core = new Core();
+            Core core = new Core();
             
             File input = new File("./test/TinySQL-TextLINUX.txt");
             
             Scanner scan = new Scanner(new FileInputStream(input));
 
             while (scan.hasNextLine()) {
-                // core.execute(scanner.nextLine());
-                System.out.println(scan.nextLine());
+                core.core(scan.nextLine());
+                // System.out.println(scan.nextLine());
             }
         }
         catch (FileNotFoundException e) {
