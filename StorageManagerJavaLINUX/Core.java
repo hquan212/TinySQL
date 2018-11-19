@@ -820,6 +820,54 @@ public class Core {
 		
 	}
 	
+	private Relation distinct_second_pass(Relation return_relation, ArrayList<String> field_names){
+    	Heap heap= new Heap(80,field_names);
+    	int blocks = return_relation.getNumOfBlocks();
+    	int num_sublists = 0;
+    	if(blocks%Config.NUM_OF_BLOCKS_IN_MEMORY==0){
+    		num_sublists = blocks/Config.NUM_OF_BLOCKS_IN_MEMORY;
+    	}else{
+    		num_sublists = blocks/Config.NUM_OF_BLOCKS_IN_MEMORY+1;
+    	}
+    	for(int i =0; i<num_sublists; i++){
+    		return_relation.getBlock(i*Config.NUM_OF_BLOCKS_IN_MEMORY,i);
+    	}
+    	for(int i=0;i<num_sublists;i++){
+			 Block tested_block=mem.getBlock(i);
+			 Tuple tested_tuple=tested_block.getTuple(0);
+			 Tuple_with_position tested_tuple_p=new Tuple_with_position(tested_tuple,i,0,0);
+			 heap.insert(tested_tuple_p); 
+		}
+		if(schema_manager.relationExists("distinct_relation")){
+			 schema_manager.deleteRelation("distinct_relation");
+		} 
+		
+		Relation distinct_relation=schema_manager.createRelation("distinct_relation", return_relation.getSchema());
+		Tuple_with_position output=heap.pop_min();
+		Tuple output_tuple=output.tuple;
+		heap.insert(output);
+		
+		appendTupleToRelation(distinct_relation, mem, 9, output_tuple);
+		
+		while(heap.size>0){
+			Tuple_with_position tp = heap.pop_min();
+			if(heap.compare_tuple(tp.tuple,ouput.tuple) !=0){
+				appendTupleToRelation(distinct_relation,mem, 9, tp.tuple);
+				output=tp;
+			}
+			if(tp.tuple_pointer<mem.getBlock(tp.sublist_pointer).getNumOfTuples()-1){
+				Tuple tuple = mem.getBlock(tp.sublist_pointer).getTuple(tp.tuple_pointer+1);
+				heap.insert(new Tuple_with_position(tuple,tp.sublist_pointer,tp.block_pointer,tp.tuple_pointer+1));
+			}
+			else if(tp.block_pointer<9 && tp.sublist_pointer*10+tp.block_pointer<blocks-1){
+				tp.block_pointer++;
+		    	return_relation.getBlock(tp.sublist_pointer*10+tp.block_pointer, tp.sublist_pointer);
+		    	heap.insert(new Tuple_with_position(mem.getBlock(tp.sublist_pointer).getTuple(0),tp.sublist_pointer,tp.block_pointer,0));
+			}
+		}
+		return distinct_relation;
+    }
+    
 	private boolean where_judge(SubTreeNode ExTree, Tuple test_tuple){
 		 if(ExTree==null) return true;
 		 if(calculate(ExTree, test_tuple).equalsIgnoreCase("true")) return true;
