@@ -201,9 +201,7 @@ public class Core {
         }
     }
     
-<<<<<<< HEAD
-    private Relation onePass(ArrayList<String> t_names){
-=======
+
     public Relation select_core(){
     	Relation joined_table;
     	boolean one_pass = true;
@@ -216,11 +214,11 @@ public class Core {
     		System.out.println("Using one-pass algortithm");
     		joined_table= onePass(parse.select.table_names);
     		if(parse.select.w_clause == null && parse.select.argument.get(0).equalsIgnoreCase("*")){
-    			if(parser.select.distinct == true){
+    			if(parse.select.distinct == true){
     				joined_table=first_pass(joined_table, joined_table.getSchema().getFieldNames());
     				joined_table=distinct_second_pass(joined_table, joined_table.getSchema().getFieldNames());
     			}
-    			if(parser.select.order == true){
+    			if(parse.select.order == true){
     				ArrayList<String> order_attr=new ArrayList<String>();
     				String order_by = parse.select.o_clause.trim();
     				order_attr.add(order_by);
@@ -233,31 +231,31 @@ public class Core {
     			return joined_table;
     		}
     	}else{
-    		if(parser.select.table_names.size()==1){
+    		if(parse.select.table_names.size()==1){
     			Schema new_schema =  schema_manager.getSchema(parse.select.table_names.get(0));
     			joined_table = schema_manager.createRelation("new_relation", new_schema);
-    			int block= schema_manager.getRelation(parse.select.table_names.get(0)).getNumOfBlocks();
+    			int blocks = schema_manager.getRelation(parse.select.table_names.get(0)).getNumOfBlocks();
     			int scan_times;
-    			if(block%9 == 0){
+    			if(blocks%9 == 0){
     				scan_times = blocks/9;
     			}else{
     				scan_times = blocks/9+1;
     			}
     			for(int i = 0; i < scan_times; i++){
-    				if((i+1)*9 > block){
+    				if((i+1)*9 > blocks){
     					schema_manager.getRelation(parse.select.table_names.get(0)).getBlocks(i*9,0,blocks-(9*i));
     					joined_table.setBlocks(i*9,0,blocks-(9*i));
     				}else{
-    					schema_manager.getRelation(parse.select.table_name.get(0)).getBlocks(i*9,0,9);
+    					schema_manager.getRelation(parse.select.table_names.get(0)).getBlocks(i*9,0,9);
     					joined_table.setBlocks(i*9,0,9);
     				}
     			}
     			if(parse.select.w_clause == null && parse.select.argument.get(0).equalsIgnoreCase("*")){
-    				if(parser.select.distinct == true){
+    				if(parse.select.distinct == true){
 	    				joined_table=first_pass(joined_table, joined_table.getSchema().getFieldNames());
 	    				joined_table=distinct_second_pass(joined_table, joined_table.getSchema().getFieldNames());
 	    			}
-	    			if(parser.select.order == true){
+	    			if(parse.select.order == true){
 	    				ArrayList<String> order_attr=new ArrayList<String>();
 	    				String order_by = parse.select.o_clause.trim();
 	    				order_attr.add(order_by);
@@ -274,7 +272,7 @@ public class Core {
     			
     			boolean last_one=false;
     			for(int i= 1; i<parse.select.table_names.size(); i++){
-    				if(i== parse.select.table_names.size()-1)){
+    				if(i== parse.select.table_names.size()-1){
     					last_one = true;
     				}
     				now_table=parse.select.table_names.get(i);
@@ -285,36 +283,36 @@ public class Core {
     				}
     				pre_table=new_join(pre_table, now_table,last_one,natual_join);
     				if(temp.contains(",")){
-    					schema.deleteRelation(temp);
+    					schema_manager.deleteRelation(temp);
     				}
     			}
     			joined_table=schema_manager.getRelation(pre_table);
     		}
-	    	if(parser.select.table_names.size()==1){
+	    	if(parse.select.table_names.size()==1){
 	    			Schema new_schema =  schema_manager.getSchema(parse.select.table_names.get(0));
 	    			joined_table = schema_manager.createRelation("new_relation", new_schema);
-	    			int block= schema_manager.getRelation(parse.select.table_names.get(0)).getNumOfBlocks();
+	    			int blocks= schema_manager.getRelation(parse.select.table_names.get(0)).getNumOfBlocks();
 	    			int scan_times;
-	    			if(block%9 == 0){
+	    			if(blocks%9 == 0){
 	    				scan_times = blocks/9;
 	    			}else{
 	    				scan_times = blocks/9+1;
 	    			}
 	    			for(int i = 0; i < scan_times; i++){
-	    				if((i+1)*9 > block){
+	    				if((i+1)*9 > blocks){
 	    					schema_manager.getRelation(parse.select.table_names.get(0)).getBlocks(i*9,0,blocks-(9*i));
 	    					joined_table.setBlocks(i*9,0,blocks-(9*i));
 	    				}else{
-	    					schema_manager.getRelation(parse.select.table_name.get(0)).getBlocks(i*9,0,9);
+	    					schema_manager.getRelation(parse.select.table_names.get(0)).getBlocks(i*9,0,9);
 	    					joined_table.setBlocks(i*9,0,9);
 	    				}
 	    			}
 	    			if(parse.select.w_clause == null && parse.select.argument.get(0).equalsIgnoreCase("*")){
-	    				if(parser.select.distinct == true){
+	    				if(parse.select.distinct == true){
 		    				joined_table=first_pass(joined_table, joined_table.getSchema().getFieldNames());
 		    				joined_table=distinct_second_pass(joined_table, joined_table.getSchema().getFieldNames());
 		    			}
-		    			if(parser.select.order == true){
+		    			if(parse.select.order == true){
 		    				ArrayList<String> order_attr=new ArrayList<String>();
 		    				String order_by = parse.select.o_clause.trim();
 		    				order_attr.add(order_by);
@@ -332,7 +330,7 @@ public class Core {
     	if(parse.select.table_names.size()>1){
     		ArrayList<String> return_field_names = new ArrayList<String>();
     		ArrayList<FieldType> return_field_types = new ArrayList<FieldType>();
-    		if(parse.select.argument.get(0).equalsIgnoreCase("*"){
+    		if(parse.select.argument.get(0).equalsIgnoreCase("*")){
     			return_field_names = joined_table.getSchema().getFieldNames();
     			return_field_types = joined_table.getSchema().getFieldTypes();
     			
@@ -340,10 +338,10 @@ public class Core {
     			return_field_names= parse.select.argument;
     			for(int i=0; i <return_field_names.size(); i++){
     				if(return_field_names.get(i).split("\\.").length==1){
-    					return_field_types.add(joined_table.getSchema().getfieldType(return_field_names.get(i)));
+    					return_field_types.add(joined_table.getSchema().getFieldType(return_field_names.get(i)));
     				}else{
     					String real_name = return_field_names.get(i).split("\\.")[1];
-    					return_field_types.add(joined_table.getSchema().getfieldType(real_name));
+    					return_field_types.add(joined_table.getSchema().getFieldType(real_name));
     				}
     			}
     		}
@@ -352,7 +350,7 @@ public class Core {
     	}
     	int table_blocks=joined_table.getNumOfBlocks();
     		if(table_blocks == 0){
-    			System.out.print("This is an empty table.")
+    			System.out.print("This is an empty table.");
     		}
     		
     		int scan_times;
@@ -380,7 +378,7 @@ public class Core {
     				}
     				for(int k = 0; k<test_tuples.size();k++){
     					if(select_tree == null || where_judge(select_tree, test_tuples.get(k))){
-    						if(parse.select.argument.get(0).equalsIgnoreCase("*"){
+    						if(parse.select.argument.get(0).equalsIgnoreCase("*")){
     							appendTupleToRelation(return_relation,mem,9,test_tuples.get(k));
     						}else{
     							Tuple return_tuple=return_relation.createTuple();
@@ -422,8 +420,9 @@ public class Core {
     								}
     								
     							}
+    							appendTupleToRelation(return_relation,mem,9,return_tuple);
     						}
-    						appendTupleToRelation(return_relation,mem,9,return_tuple);
+    						
     					}
     				}
     			}
@@ -447,8 +446,7 @@ public class Core {
     		return return_relation;
     }
     
-    private Relation onePass(ArrayList<String) t_names){
->>>>>>> selection-core
+    private Relation onePass(ArrayList<String> t_names){
     	
     	Schema onePass = schemaCombine(t_names);
     	Relation operation = schema_manager.createRelation("opr", onePass);
