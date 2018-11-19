@@ -229,6 +229,7 @@ public class Parser{
         }
         return true;
     }
+    
     private boolean selectedParse(String[] res){
         select = new TreeNode();
         key_word.add("select");
@@ -396,10 +397,12 @@ public class Parser{
                     select.table_names.add(tables[i]);
                 }
             }
+            
         }
         
-        
+        return true;
     }
+    
     public void reset(){
         sentence = null;
         key_word = new ArrayList<>();
