@@ -35,7 +35,7 @@ public class Relation implements Serializable {
 
 	// For internal use only: DO NOT use constructors here. 
 	  // Create a relation through schema manager
-	  protected Relation() {
+	  public Relation() {
 		    this.schema_manager=null;
 		    this.schema_index=-1;
 		    this.relation_name="";

@@ -28,4 +28,32 @@ public class SubTreeNode{
         left = null;
         right = null;
     }
+    
+        public ArrayList<SubTreeNode> hasSelection(){
+        if(right ==null){
+            return null;
+        }
+
+        if((Character.isDigit(this.left.operation.charAt(0)) || Character.isLetter(this.left.operation.charAt(0))) && (Character.isDigit(this.right.operation.charAt(0)) || Character.isLetter(this.right.operation.charAt(0)))){
+            ArrayList<SubTreeNode> res = new ArrayList<>();
+            res.add(this);
+            return res;
+        }
+
+        ArrayList<SubTreeNode> left_ex = this.left.hasSelection();
+        ArrayList<SubTreeNode> right_ex = this.right.hasSelection();
+
+        if (left_ex!=null){
+            if(right_ex!=null){
+                left_ex.addAll(right_ex);
+            }
+            return left_ex;
+        }else{
+            if(right_ex!=null){
+                return right_ex;
+            }
+            return null;
+        }
+    }
+
 }

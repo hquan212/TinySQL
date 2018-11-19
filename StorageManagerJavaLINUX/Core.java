@@ -326,8 +326,8 @@ public class Core {
 	    			return joined_table;
 	    	}
     	}
-    	Schema return_schema;
-    	Relation return_relation;
+    	Schema return_schema = new Schema();
+    	Relation return_relation = new Relation();
     	if(parse.select.table_names.size()>1){
     		ArrayList<String> return_field_names = new ArrayList<String>();
     		ArrayList<FieldType> return_field_types = new ArrayList<FieldType>();
@@ -921,8 +921,146 @@ public class Core {
 		 
 	 }
     
-    
-    
+	private String new_join(String t_1, String t_2, boolean last_one, boolean na_join){
+    	long r=System.currentTimeMillis();
+		ArrayList<SubTreeNode> clauses=new ArrayList<SubTreeNode>();
+	    if(parse.select.w_clause!=null) clauses=parse.select.w_clause.hasSelection();
+		ArrayList<SubTreeNode> suit_clauses=new ArrayList<SubTreeNode>();
+		ArrayList<String> t1_names=new ArrayList<String>();
+		if(t_1.contains(",")) 
+		{ 
+			String[] t1_names_s=t_1.split(",");
+		    for(int i=0;i<t1_names_s.length;i++){
+		    	t1_names.add(t1_names_s[i]);
+		    }
+		}
+		for(int i=0;i<clauses.size();i++){
+			SubTreeNode test_tree=clauses.get(i);
+			boolean add=false;
+			if(t1_names.size()>0){
+			for(int j=0;j<t1_names.size();j++){
+			if((test_tree.left.operation.contains(t1_names.get(j))&&test_tree.right.operation.contains(t_2))){
+				  add=true;
+			}
+			}
+			}
+			else{
+				if(test_tree.left.operation.contains(t_1)&&test_tree.right.operation.contains(t_2)){
+					if(test_tree.left.operation.contains(t_1)&&test_tree.right.operation.contains(t_2)){
+	                    String left_operation = test_tree.left.operation;
+	                    String right_operation = test_tree.right.operation;
+	                    int index_left = left_operation.indexOf(".");
+	                    int index_right = right_operation.indexOf(".");
+	                    if(index_left>0 && index_right>0){
+	                        String sub_left = left_operation.substring(index_left+1,left_operation.length());
+	                        String sub_right = right_operation.substring(index_right+1,right_operation.length());
+	                        if(sub_left.equalsIgnoreCase(sub_right) && na_join){
+//	                            to do natural join
+//	                            tables t_1 && t_2
+//	                            join attribute
+//	                            System.out.println("I'm in natural join");
+//	                            sub_left.replaceAll("\.", "");
+	                            return natural_join(t_1,t_2,sub_left);
+	                        }
+	                    }
+					add=true;
+				}
+			}
+			}
+			
+			if(add==true){
+			suit_clauses.add(test_tree);}
+		}
+		Relation r_1=schema_manager.getRelation(t_1);
+		Relation r_2=schema_manager.getRelation(t_2);
+		ArrayList<String> new_fieldnames=new ArrayList<String>();
+		ArrayList<FieldType> new_fieldtypes=r_1.getSchema().getFieldTypes();
+		new_fieldtypes.addAll(r_2.getSchema().getFieldTypes());
+		if(r_1.getSchema().getFieldNames().get(0).contains(".")){
+			new_fieldnames=r_1.getSchema().getFieldNames();
+		}
+		else{
+			for(int i=0;i<r_1.getSchema().getNumOfFields();i++){
+				String name=t_1+"."+r_1.getSchema().getFieldNames().get(i);
+				new_fieldnames.add(name);
+			}
+		}
+		if(r_2.getSchema().getFieldNames().get(0).contains(".")){
+			new_fieldnames.addAll(r_2.getSchema().getFieldNames());
+		}
+		else{
+			for(int i=0;i<r_2.getSchema().getNumOfFields();i++){
+				String name=t_2+"."+r_2.getSchema().getFieldNames().get(i);
+				new_fieldnames.add(name);
+			}
+		}
+		Schema new_schema=new Schema(new_fieldnames,new_fieldtypes);
+		if(last_one) System.out.println(new_schema);
+		String new_table=t_1+","+t_2;
+        Relation new_r =schema_manager.createRelation(new_table, new_schema);
+        int t1_blocks=r_1.getNumOfBlocks();
+        int t1_to_mem;
+        if(t1_blocks>Config.NUM_OF_BLOCKS_IN_MEMORY-2) t1_to_mem=Config.NUM_OF_BLOCKS_IN_MEMORY-2;
+        else t1_to_mem=t1_blocks;
+        for(int i=0;i<t1_blocks;i+=t1_to_mem){
+        	if(i+t1_to_mem>t1_blocks) t1_to_mem=t1_blocks-i;
+        	r_1.getBlocks(i, 0, t1_to_mem);
+        	for(int j=0;j<t1_to_mem;j++){
+            	long lp=System.currentTimeMillis();
+        		Block t1_block=mem.getBlock(j);
+        		if(t1_block.isEmpty()) continue;
+        		int t2_blocks=r_2.getNumOfBlocks();
+        		for(int m=0;m<t2_blocks;m++){
+        			r_2.getBlock(m, Config.NUM_OF_BLOCKS_IN_MEMORY-2);
+        			Block t2_block=mem.getBlock(Config.NUM_OF_BLOCKS_IN_MEMORY-2);
+        			if(t2_block.isEmpty()) continue;
+        			for(int k=0;k<t1_block.getNumTuples();k++){
+            			Tuple t1_tuple=t1_block.getTuple(k);
+            		if(t1_tuple.isNull()) continue;
+        			for(int n=0;n<t2_block.getNumTuples();n++){
+        				Tuple t2_tuple=t2_block.getTuple(n);
+        				if(t2_tuple.isNull()) continue;
+        				
+        				
+        				Tuple joined_tuple=new_r.createTuple();
+         	            for(int t=0;t<t1_tuple.getNumOfFields();t++){
+         	        	       if(t1_tuple.getField(t).type==FieldType.INT){
+         	                   joined_tuple.setField(t, t1_tuple.getField(t).integer);
+         	        	       }
+         	        	       else if(t1_tuple.getField(t).type==FieldType.STR20){
+             	                   joined_tuple.setField(t, t1_tuple.getField(t).str);
+             	        	     }
+         	           }
+         	           for(int t=t1_tuple.getNumOfFields();t<joined_tuple.getNumOfFields();t++){
+         	        	   if(t2_tuple.getField(t-t1_tuple.getNumOfFields()).type==FieldType.INT){
+         	                   joined_tuple.setField(t, t2_tuple.getField(t-t1_tuple.getNumOfFields()).integer);
+         	        	       }
+         	        	       else if(t2_tuple.getField(t-t1_tuple.getNumOfFields()).type==FieldType.STR20){
+             	                   joined_tuple.setField(t, t2_tuple.getField(t-t1_tuple.getNumOfFields()).str);
+             	        	   }
+         	           }
+         	           if(suit_clauses.size()==0) {
+       					appendTupleToRelation(new_r, mem, Config.NUM_OF_BLOCKS_IN_MEMORY-1, joined_tuple);
+         	           }
+         	           else{
+         	           int pointer=0;
+         	           for(int t=0;t<suit_clauses.size();t++){
+         	        	   if(where_judge(suit_clauses.get(t),joined_tuple)){
+         	        		   pointer++;
+         	        	   }  
+         	        	 }
+         	             if(pointer==suit_clauses.size()){
+         	            		 appendTupleToRelation(new_r, mem, Config.NUM_OF_BLOCKS_IN_MEMORY-1, joined_tuple);
+   	        	          }
+         	           }
+        			}    			
+        		}
+        	  }
+        	}
+        }
+      return new_table; 
+	}
+	
     
 	private boolean where_judge(SubTreeNode ExTree, Tuple test_tuple){
 		 if(ExTree==null) return true;
@@ -1206,9 +1344,6 @@ public class Core {
 	      }
 	    }
     }
-    
-
-	
 
 	
 }
