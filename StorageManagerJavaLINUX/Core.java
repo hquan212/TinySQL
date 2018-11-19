@@ -851,11 +851,11 @@ public class Core {
 		
 		while(heap.size>0){
 			Tuple_with_position tp = heap.pop_min();
-			if(heap.compare_tuple(tp.tuple,ouput.tuple) !=0){
+			if(heap.compare_tuple(tp.tuple,output.tuple) !=0){
 				appendTupleToRelation(distinct_relation,mem, 9, tp.tuple);
 				output=tp;
 			}
-			if(tp.tuple_pointer<mem.getBlock(tp.sublist_pointer).getNumOfTuples()-1){
+			if(tp.tuple_pointer<mem.getBlock(tp.sublist_pointer).getNumTuples()-1){
 				Tuple tuple = mem.getBlock(tp.sublist_pointer).getTuple(tp.tuple_pointer+1);
 				heap.insert(new Tuple_with_position(tuple,tp.sublist_pointer,tp.block_pointer,tp.tuple_pointer+1));
 			}
