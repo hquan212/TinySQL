@@ -8,6 +8,8 @@ import storageManager.SchemaManager;
 import storageManager.Tuple;
 import storageManager.Config;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class Core {
  
@@ -84,7 +86,6 @@ public class Core {
 			
 		}
 	}
-	
 	
 	public void delete_core(){
 
@@ -240,7 +241,6 @@ public class Core {
     	return operation;
     }
     
-           
     private ArrayList<Tuple> onePassMemory(ArrayList<Tuple> tList, int num, int time, ArrayList<String> tups, int totalTups){
     	
     	if(time==(num-1)){
@@ -328,7 +328,7 @@ public class Core {
 		
 	    Schema joined_schema = new Schema(joinFildName,joinedFileTypes);
 	    return joined_schema;
-    }
+    } //merge_schema
     
     private String natural_join(String t_1, String t_2, String attr) {
     	
@@ -575,6 +575,198 @@ public class Core {
 		
 	}
 	
+	private boolean where_judge(SubTreeNode ExTree, Tuple test_tuple){
+		 if(ExTree==null) return true;
+		 if(calculate(ExTree, test_tuple).equalsIgnoreCase("true")) return true;
+		 else if(calculate(ExTree, test_tuple).equalsIgnoreCase("null")) System.out.println("Syntax Error!");
+		 return false;
+	}
+	
+	private String calculate(SubTreeNode ExTree, Tuple test_tuple){
+		if(ExTree.left==null){
+			return ExTree.operation;
+	    }
+		if(ExTree.right==null){
+			return ExTree.operation;
+	    }
+		String left="false";
+		String right="false";
+		
+		if(ExTree.left!=null){
+			left=calculate(ExTree.left, test_tuple);
+		}
+		if(ExTree.right!=null){
+		    right=calculate(ExTree.right,test_tuple);
+		}
+		if(ExTree.operation.equalsIgnoreCase("&")){
+			if(left.equalsIgnoreCase("true")&&right.equalsIgnoreCase("true")){
+				return "true";
+			}
+			else return "false";
+		}
+		else if(ExTree.operation.equalsIgnoreCase("|")){
+			if(left.equalsIgnoreCase("true")||right.equalsIgnoreCase("true")){
+				return "true";
+			}
+			else return "false";
+		}
+		else if(ExTree.operation.equalsIgnoreCase("=")){
+			if(Pattern.matches("[0-9]",String.valueOf(left.charAt(0)))){
+			     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+			  if(left.equalsIgnoreCase(right)) return "true";
+			  else return "false";}
+			     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+			    	 int lvalue=Integer.parseInt(left);
+			    	 int rvalue=test_tuple.getField(right).integer;
+			    	 if(lvalue==rvalue) return "true";
+			    	 else return "false";
+			     }
+			}
+			else if(Pattern.matches("[^0-9]",String.valueOf(left.charAt(0)))){
+			     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+			    	 int rvalue=Integer.parseInt(right);
+			    	 int lvalue=test_tuple.getField(left).integer;
+			    	 if(lvalue==rvalue) return "true";
+			    	 else return "false";
+			     }
+			     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+                     if(test_tuple.getSchema().fieldNameExists(right)) {
+                    	 if(test_tuple.getSchema().fieldNameExists(left)){
+                    		 if(test_tuple.getField(left).str!=null){
+                    		if(test_tuple.getField(right).str.equalsIgnoreCase(test_tuple.getField(left).str)) return "true";
+                    		else return "false";
+                    		 }
+                    		 else{
+                    			 if(test_tuple.getField(right).integer==test_tuple.getField(left).integer) return "true";
+                         		else return "false";
+                    		 }
+                    	 }
+                    	 else{
+                    		left=left.replaceAll("\"", "");
+                    		if(test_tuple.getField(right).str.equalsIgnoreCase(left)) return "true";
+                    		else return "false";
+                    	 }
+                     }
+                     else if(!test_tuple.getSchema().fieldNameExists(right)){
+                    	 if(test_tuple.getSchema().fieldNameExists(left)){
+                    		 right=right.replaceAll("\"", "");
+                    		 if(test_tuple.getField(left).str.equalsIgnoreCase(right)) return "true";
+                    		 else return "false";
+                    	 }
+                    	 else{
+                    		 if(left.equalsIgnoreCase(right)) return "true";
+                    		 else return "false";
+                    	 }
+                     }
+			     }
+			}
+		}
+		else if(ExTree.operation.equalsIgnoreCase("<")){
+			if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
+				if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+			    if(test_tuple.getField(left).integer<test_tuple.getField(right).integer) return "true";
+			    else return "false";
+				}
+				else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+					if(test_tuple.getField(left).integer<Integer.parseInt(right)) return "true";
+				    else return "false";
+				}
+			}
+			else if(Pattern.matches("[0-9]", String.valueOf(left.charAt(0)))){
+				if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+				    if(Integer.parseInt(left)<test_tuple.getField(right).integer) return "true";
+				    else return "false";
+					}
+					else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+						if(Integer.parseInt(left)<Integer.parseInt(right)) return "true";
+					    else return "false";
+					}
+			}
+		}
+		else if(ExTree.operation.equalsIgnoreCase(">")){
+			if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
+				if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+			    if(test_tuple.getField(left).integer>test_tuple.getField(right).integer) return "true";
+			    else return "false";
+				}
+				else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+					if(test_tuple.getField(left).integer>Integer.parseInt(right)) return "true";
+				    else return "false";
+				}
+			}
+			else if(Pattern.matches("[0-9]", String.valueOf(left.charAt(0)))){
+				if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+				    if(Integer.parseInt(left)>test_tuple.getField(right).integer) return "true";
+				    else return "false";
+					}
+					else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+						if(Integer.parseInt(left)>Integer.parseInt(right)) return "true";
+					    else return "false";
+					}
+			}
+		}
+		else if(ExTree.operation.equalsIgnoreCase("+")  || ExTree.operation.equalsIgnoreCase("-")  || ExTree.operation.equalsIgnoreCase("*")  || ExTree.operation.equalsIgnoreCase("/")){
+			if(Pattern.matches("[0-9]",String.valueOf(left.charAt(0)))){
+				     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
+				    	 int temp=0;
+				    	 if(ExTree.operation.equalsIgnoreCase("+")){
+				    	  temp=Integer.parseInt(left)+Integer.parseInt(right);}
+				    	 else if(ExTree.operation.equalsIgnoreCase("-")){
+					      temp=Integer.parseInt(left)-Integer.parseInt(right);}
+				    	 else if(ExTree.operation.equalsIgnoreCase("*")){
+					    	  temp=Integer.parseInt(left)*Integer.parseInt(right);}
+				    	 else if(ExTree.operation.equalsIgnoreCase("/")){
+					    	  temp=Integer.parseInt(left)/Integer.parseInt(right);}
+				    	  return String.valueOf(temp);	             //如果是左边的是数字，那右边也得是数字或者字符
+				     }
+				     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
+				    	  int right_value=test_tuple.getField(right).integer;
+				    	  int temp=0;
+					      if(ExTree.operation.equalsIgnoreCase("+")){
+				    	  temp=Integer.parseInt(left)+right_value;}
+					      else if(ExTree.operation.equalsIgnoreCase("-")){
+					    	  temp=Integer.parseInt(left)-right_value;}
+					      else if(ExTree.operation.equalsIgnoreCase("*")){
+					    	  temp=Integer.parseInt(left)*right_value;}
+					      else if(ExTree.operation.equalsIgnoreCase("/")){
+					    	  temp=Integer.parseInt(left)/right_value;}
+				    	  return String.valueOf(temp);
+				     }
+			}
+			else if(Pattern.matches("[0-9]",String.valueOf(right.charAt(0)))){
+			          if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
+			    	  int left_value=test_tuple.getField(left).integer;
+			    	  int temp=0;
+				      if(ExTree.operation.equalsIgnoreCase("+")){
+			    	  temp=Integer.parseInt(right)+left_value;}
+				      else if(ExTree.operation.equalsIgnoreCase("-")){
+				    	   temp=Integer.parseInt(right)-left_value;}
+				      else if(ExTree.operation.equalsIgnoreCase("*")){
+				    	   temp=Integer.parseInt(right)*left_value;}
+				      else if(ExTree.operation.equalsIgnoreCase("/")){
+				    	   temp=Integer.parseInt(right)/left_value;}
+			    	  return String.valueOf(temp);
+			     }
+		    }
+			else if(Pattern.matches("[^0-9]",String.valueOf(left.charAt(0)))&&Pattern.matches("[^0-9]",String.valueOf(right.charAt(0)))){
+				int left_value=test_tuple.getField(left).integer;
+				int right_value=test_tuple.getField(right).integer;
+				int temp=0;
+			      if(ExTree.operation.equalsIgnoreCase("+")){
+		         temp=right_value+left_value;}
+			      else if(ExTree.operation.equalsIgnoreCase("-")){
+				         temp=right_value-left_value;}
+			      else if(ExTree.operation.equalsIgnoreCase("*")){
+				         temp=right_value*left_value;}
+			      else if(ExTree.operation.equalsIgnoreCase("/")){
+				         temp=right_value/left_value;}
+		        return String.valueOf(temp);
+			}
+			
+		}
+		 return "null";
+	}
+	
     private Relation first_pass(Relation return_relation, ArrayList<String> field_names){
 //		 if(return_relation.getSchema().getFieldNames().contains(field_names.get(0))){
 //			 return return_relation;
@@ -666,199 +858,10 @@ public class Core {
 	    }
     }
     
-	private boolean where_judge(SubTreeNode ExTree, Tuple test_tuple){
-		 if(ExTree==null) return true;
-		 if(calculate(ExTree, test_tuple).equalsIgnoreCase("true")) return true;
-		 else if(calculate(ExTree, test_tuple).equalsIgnoreCase("null")) System.out.println("Syntax Error!");
-		 return false;
-	}
+
 	
-	// private String calculate(SubTreeNode ExTree, Tuple test_tuple){
-	// 	if(ExTree.left==null){
-	// 		return ExTree.op;
-	//     }
-	// 	if(ExTree.right==null){
-	// 		return ExTree.op;
-	//     }
-	// 	String left="false";
-	// 	String right="false";
-		
-	// 	if(ExTree.left!=null){
-	// 		left=calculate(ExTree.left, test_tuple);
-	// 	}
-	// 	if(ExTree.right!=null){
-	// 	    right=calculate(ExTree.right,test_tuple);
-	// 	}
-	// 	if(ExTree.op.equalsIgnoreCase("&")){
-	// 		if(left.equalsIgnoreCase("true")&&right.equalsIgnoreCase("true")){
-	// 			return "true";
-	// 		}
-	// 		else return "false";
-	// 	}
-	// 	else if(ExTree.op.equalsIgnoreCase("|")){
-	// 		if(left.equalsIgnoreCase("true")||right.equalsIgnoreCase("true")){
-	// 			return "true";
-	// 		}
-	// 		else return "false";
-	// 	}
-	// 	else if(ExTree.op.equalsIgnoreCase("=")){
-	// 		if(Pattern.matches("[0-9]",String.valueOf(left.charAt(0)))){
-	// 		     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-	// 		  if(left.equalsIgnoreCase(right)) return "true";
-	// 		  else return "false";}
-	// 		     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-	// 		    	 int lvalue=Integer.parseInt(left);
-	// 		    	 int rvalue=test_tuple.getField(right).integer;
-	// 		    	 if(lvalue==rvalue) return "true";
-	// 		    	 else return "false";
-	// 		     }
-	// 		}
-	// 		else if(Pattern.matches("[^0-9]",String.valueOf(left.charAt(0)))){
-	// 		     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-	// 		    	 int rvalue=Integer.parseInt(right);
-	// 		    	 int lvalue=test_tuple.getField(left).integer;
-	// 		    	 if(lvalue==rvalue) return "true";
-	// 		    	 else return "false";
-	// 		     }
-	// 		     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
- //                    if(test_tuple.getSchema().fieldNameExists(right)) {
- //                   	 if(test_tuple.getSchema().fieldNameExists(left)){
- //                   		 if(test_tuple.getField(left).str!=null){
- //                   		if(test_tuple.getField(right).str.equalsIgnoreCase(test_tuple.getField(left).str)) return "true";
- //                   		else return "false";
- //                   		 }
- //                   		 else{
- //                   			 if(test_tuple.getField(right).integer==test_tuple.getField(left).integer) return "true";
- //                        		else return "false";
- //                   		 }
- //                   	 }
- //                   	 else{
- //                   		left=left.replaceAll("\"", "");
- //                   		if(test_tuple.getField(right).str.equalsIgnoreCase(left)) return "true";
- //                   		else return "false";
- //                   	 }
- //                    }
- //                    else if(!test_tuple.getSchema().fieldNameExists(right)){
- //                   	 if(test_tuple.getSchema().fieldNameExists(left)){
- //                   		 right=right.replaceAll("\"", "");
- //                   		 if(test_tuple.getField(left).str.equalsIgnoreCase(right)) return "true";
- //                   		 else return "false";
- //                   	 }
- //                   	 else{
- //                   		 if(left.equalsIgnoreCase(right)) return "true";
- //                   		 else return "false";
- //                   	 }
- //                    }
-	// 		     }
-	// 		}
-	// 	}
-	// 	else if(ExTree.op.equalsIgnoreCase("<")){
-	// 		if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
-	// 			if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-	// 		    if(test_tuple.getField(left).integer<test_tuple.getField(right).integer) return "true";
-	// 		    else return "false";
-	// 			}
-	// 			else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-	// 				if(test_tuple.getField(left).integer<Integer.parseInt(right)) return "true";
-	// 			    else return "false";
-	// 			}
-	// 		}
-	// 		else if(Pattern.matches("[0-9]", String.valueOf(left.charAt(0)))){
-	// 			if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-	// 			    if(Integer.parseInt(left)<test_tuple.getField(right).integer) return "true";
-	// 			    else return "false";
-	// 				}
-	// 				else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-	// 					if(Integer.parseInt(left)<Integer.parseInt(right)) return "true";
-	// 				    else return "false";
-	// 				}
-	// 		}
-	// 	}
-	// 	else if(ExTree.op.equalsIgnoreCase(">")){
-	// 		if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
-	// 			if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-	// 		    if(test_tuple.getField(left).integer>test_tuple.getField(right).integer) return "true";
-	// 		    else return "false";
-	// 			}
-	// 			else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-	// 				if(test_tuple.getField(left).integer>Integer.parseInt(right)) return "true";
-	// 			    else return "false";
-	// 			}
-	// 		}
-	// 		else if(Pattern.matches("[0-9]", String.valueOf(left.charAt(0)))){
-	// 			if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-	// 			    if(Integer.parseInt(left)>test_tuple.getField(right).integer) return "true";
-	// 			    else return "false";
-	// 				}
-	// 				else if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-	// 					if(Integer.parseInt(left)>Integer.parseInt(right)) return "true";
-	// 				    else return "false";
-	// 				}
-	// 		}
-	// 	}
-	// 	else if(ExTree.op.equalsIgnoreCase("+")  || ExTree.op.equalsIgnoreCase("-")  || ExTree.op.equalsIgnoreCase("*")  || ExTree.op.equalsIgnoreCase("/")){
-	// 		if(Pattern.matches("[0-9]",String.valueOf(left.charAt(0)))){
-	// 			     if(Pattern.matches("[0-9]", String.valueOf(right.charAt(0)))){
-	// 			    	 int temp=0;
-	// 			    	 if(ExTree.op.equalsIgnoreCase("+")){
-	// 			    	  temp=Integer.parseInt(left)+Integer.parseInt(right);}
-	// 			    	 else if(ExTree.op.equalsIgnoreCase("-")){
-	// 				      temp=Integer.parseInt(left)-Integer.parseInt(right);}
-	// 			    	 else if(ExTree.op.equalsIgnoreCase("*")){
-	// 				    	  temp=Integer.parseInt(left)*Integer.parseInt(right);}
-	// 			    	 else if(ExTree.op.equalsIgnoreCase("/")){
-	// 				    	  temp=Integer.parseInt(left)/Integer.parseInt(right);}
-	// 			    	  return String.valueOf(temp);	             //如果是左边的是数字，那右边也得是数字或者字符
-	// 			     }
-	// 			     else if(Pattern.matches("[^0-9]", String.valueOf(right.charAt(0)))){
-	// 			    	  int right_value=test_tuple.getField(right).integer;
-	// 			    	  int temp=0;
-	// 				      if(ExTree.op.equalsIgnoreCase("+")){
-	// 			    	  temp=Integer.parseInt(left)+right_value;}
-	// 				      else if(ExTree.op.equalsIgnoreCase("-")){
-	// 				    	  temp=Integer.parseInt(left)-right_value;}
-	// 				      else if(ExTree.op.equalsIgnoreCase("*")){
-	// 				    	  temp=Integer.parseInt(left)*right_value;}
-	// 				      else if(ExTree.op.equalsIgnoreCase("/")){
-	// 				    	  temp=Integer.parseInt(left)/right_value;}
-	// 			    	  return String.valueOf(temp);
-	// 			     }
-	// 		}
-	// 		else if(Pattern.matches("[0-9]",String.valueOf(right.charAt(0)))){
-	// 		          if(Pattern.matches("[^0-9]", String.valueOf(left.charAt(0)))){
-	// 		    	  int left_value=test_tuple.getField(left).integer;
-	// 		    	  int temp=0;
-	// 			      if(ExTree.op.equalsIgnoreCase("+")){
-	// 		    	  temp=Integer.parseInt(right)+left_value;}
-	// 			      else if(ExTree.op.equalsIgnoreCase("-")){
-	// 			    	   temp=Integer.parseInt(right)-left_value;}
-	// 			      else if(ExTree.op.equalsIgnoreCase("*")){
-	// 			    	   temp=Integer.parseInt(right)*left_value;}
-	// 			      else if(ExTree.op.equalsIgnoreCase("/")){
-	// 			    	   temp=Integer.parseInt(right)/left_value;}
-	// 		    	  return String.valueOf(temp);
-	// 		     }
-	// 	    }
-	// 		else if(Pattern.matches("[^0-9]",String.valueOf(left.charAt(0)))&&Pattern.matches("[^0-9]",String.valueOf(right.charAt(0)))){
-	// 			int left_value=test_tuple.getField(left).integer;
-	// 			int right_value=test_tuple.getField(right).integer;
-	// 			int temp=0;
-	// 		      if(ExTree.op.equalsIgnoreCase("+")){
-	// 	         temp=right_value+left_value;}
-	// 		      else if(ExTree.op.equalsIgnoreCase("-")){
-	// 			         temp=right_value-left_value;}
-	// 		      else if(ExTree.op.equalsIgnoreCase("*")){
-	// 			         temp=right_value*left_value;}
-	// 		      else if(ExTree.op.equalsIgnoreCase("/")){
-	// 			         temp=right_value/left_value;}
-	// 	        return String.valueOf(temp);
-	// 		}
-			
-	// 	}
-	// 	 return "null";
-	// }
+
 	
-    
 }
         
         
