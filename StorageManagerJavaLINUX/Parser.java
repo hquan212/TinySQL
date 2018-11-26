@@ -180,7 +180,7 @@ public class Parser{
                         String[] args = sub.split(",");
                         for (int j = 0; j < args.length; j++) {
                             args[j] = args[j].trim();
-                            System.out.println(args[j]);
+                            // System.out.println(args[j]);
                             String[] field = args[j].split(" ");
                             if (field.length != 1) {
                                 System.out.print("Wrong Arg Format");

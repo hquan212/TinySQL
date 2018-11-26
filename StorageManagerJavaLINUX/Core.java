@@ -188,14 +188,19 @@ public class Core {
         
         if (parse.select == null ){
             for (int i=0; i< tuple.getNumOfFields(); i++) {
+            	System.out.println(relationSchema.getFieldType(parse.argumentList.get(i).name));
                 if ( relationSchema.getFieldType(parse.argumentList.get(i).name) == FieldType.STR20) {
                     String val = parse.values.get(i).replaceAll("\"", "");
                     tuple.setField(parse.argumentList.get(i).name, val);
                 }
                 else {
                 	// System.out.println(parse.argumentList.get(i).name);
-                	// System.out.println(parse.values.get(i));
-                    tuple.setField(parse.argumentList.get(i).name, Integer.parseInt(parse.values.get(i)));
+                	if(parse.values.get(i).equalsIgnoreCase("NULL")){
+                		tuple.setField(parse.argumentList.get(i).name, null);
+                	}else{
+                		tuple.setField(parse.argumentList.get(i).name, Integer.parseInt(parse.values.get(i)));
+                	}
+                   
                 }
             }
             appendTupleToRelation(relationToInsert, mem, 2, tuple);
