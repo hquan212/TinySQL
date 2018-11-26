@@ -173,7 +173,25 @@ public class Parser{
                         stringBuilder.append(res[i]+" ");
                     }
                    
-                    
+
+                    temp = stringBuilder.toString();
+                    if (temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
+                        String sub = temp.substring(1, temp.indexOf(")"));
+                        String[] args = sub.split(",");
+                        for (int j = 0; j < args.length; j++) {
+                            args[j] = args[j].trim();
+                            System.out.println(args[j]);
+                            String[] field = args[j].split(" ");
+                            if (field.length != 1) {
+                                System.out.print("Wrong Arg Format");
+                                return false;
+                            } else {
+                                values.add(field[0]);
+                            }
+                        }
+                    } else {
+                        return false;
+                    }
                 }else if(string_index > 0){
                     StringBuilder stringBuilder = new StringBuilder();
                     for (int i = 3; i < string_index; i++) {

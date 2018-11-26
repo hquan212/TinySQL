@@ -193,6 +193,8 @@ public class Core {
                     tuple.setField(parse.argumentList.get(i).name, val);
                 }
                 else {
+                	// System.out.println(parse.argumentList.get(i).name);
+                	// System.out.println(parse.values.get(i));
                     tuple.setField(parse.argumentList.get(i).name, Integer.parseInt(parse.values.get(i)));
                 }
             }
