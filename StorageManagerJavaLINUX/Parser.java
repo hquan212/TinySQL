@@ -53,6 +53,8 @@ public class Parser{
                     return false;
                 }
                 
+                t_names.add(res[2]);
+                
                 StringBuilder stringBuilder = new StringBuilder();
                 for(int i = 3; i<res.length;i++){
                     stringBuilder.append(res[i]+" ");
@@ -126,6 +128,7 @@ public class Parser{
                 for(int i=3; i< res.length; i++){
                     if(res[i].equalsIgnoreCase("values")){
                        index = i;
+                       
                    }
 
                    if(res[i].equalsIgnoreCase("select")){
@@ -133,6 +136,7 @@ public class Parser{
                    }
                     
                 }
+                
                 //No values for inserting into tables
                 if(index<0 && string_index<0){
                    System.out.print("No values are inserted into the program. Please try again.");
@@ -140,41 +144,68 @@ public class Parser{
                 }
                 
                 if(index>0){
-                    StringBuilder string_builder = new StringBuilder();
-                    for(int i = 3; i< index; i++){
-                        string_builder.append(res[i] + " ");
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = 3; i < index; i++) {
+                        stringBuilder.append(res[i] + " ");
+                        
                     }
-                    String temp = string_builder.toString();
-                    if(temp.charAt(0) == '(' && temp.indexOf(")") > 0){
+                    String temp = stringBuilder.toString();
+                    if (temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
                         String sub = temp.substring(1, temp.indexOf(")"));
-                        String args[] = sub.split(",");
-                        for(int j = 0; j < args.length; j++){
-                            
+                        String[] args = sub.split(",");
+                        for (int j = 0; j < args.length; j++) {
                             args[j] = args[j].trim();
                             String[] field = args[j].split(" ");
                             if (field.length != 1) {
-                                System.out.print("Wrong Argument Format inside INSERT into");
+                                System.out.print("Wrong Arg Format");
                                 return false;
                             } else {
-                                Argument argumentSub = new Argument(null, field[0]);
-                                argumentList.add(argumentSub);
+                                Argument argument = new Argument(null, field[0]);
+                                argumentList.add(argument);
                             }
-                            
                         }
-                    }else{
-                        System.out.print("Paranethesis were not found!");
+                    } else {
                         return false;
                     }
-            
-                    string_builder = new StringBuilder();
-                    for(int i = string_index; i< res.length; i++){
-                        string_builder.append(res[i] + " ");
-                        
+
+                    stringBuilder = new StringBuilder();
+                    for(int i = index + 1;i<res.length;i++){
+                        stringBuilder.append(res[i]+" ");
                     }
+                   
                     
-                    System.out.println("Processing selection parses");
-                    return selectedParse(string_builder.toString().split(" "));
-                    
+                }else if(string_index > 0){
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = 3; i < string_index; i++) {
+                        stringBuilder.append(res[i] + " ");
+                    }
+                    String temp = stringBuilder.toString();
+                    if (temp.charAt(0) == '(' && temp.indexOf(")") > 0) {
+                        String sub = temp.substring(1, temp.indexOf(")"));
+                        String[] args = sub.split(",");
+                        for (int j = 0; j < args.length; j++) {
+                            args[j] = args[j].trim();
+                            String[] field = args[j].split(" ");
+                            if (field.length != 1) {
+                                System.out.print("Wrong Arg Format");
+                                return false;
+                            } else {
+                                Argument argument = new Argument(null, field[0]);
+                                argumentList.add(argument);
+                            }
+                        }
+                    } else {
+                        return false;
+                    }
+
+                    stringBuilder = new StringBuilder();
+                    for(int i = string_index;i<res.length;i++){
+                        stringBuilder.append(res[i]+" ");
+                    }
+
+                     System.out.println("Processing selection parses");
+                    System.out.println("Valid 1");
+                    return selectedParse(stringBuilder.toString().split(" "));
                 }
       
             }else if(res[0].equalsIgnoreCase("delete")){
@@ -224,6 +255,7 @@ public class Parser{
                 return false;
             }
         }catch (Exception e){
+            e.printStackTrace();
             System.out.print("Syntax is in the wrong format");
             return false;
         }
@@ -372,7 +404,7 @@ public class Parser{
                     return false;
                 }
                 select.order = true;
-                for(int i = f_index; i < o_index; i++){
+                for(int i = f_index+1; i < o_index; i++){
                     string_builder.append(res[i]+" ");
                 }
                 String tables[] = string_builder.toString().split(",");
@@ -388,7 +420,7 @@ public class Parser{
                 select.o_clause = string_builder.toString();
                 
             }else{
-                for(int i=w_index + 1; i <res.length;i++){
+                for(int i=f_index + 1; i <res.length;i++){
                     string_builder.append(res[i]+" ");
                 }
                 String tables[] = string_builder.toString().split(",");

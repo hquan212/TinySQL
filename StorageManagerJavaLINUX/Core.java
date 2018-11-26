@@ -162,10 +162,12 @@ public class Core {
 		// System.out.println("FieldNames: " + parse.argumentList.get(2).name);
 		// System.out.println("FieldNames: " + parse.argumentList.get(3).name);
         Schema schema = new Schema(fieldNames, fieldType);
+        // System.out.println("Create_HERE! part1: " + parse.t_names.get(0));
         schema_manager.createRelation(parse.t_names.get(0), schema);
+        // System.out.println("Create_HERE! part 2");
         System.out.println("Created table: " + parse.t_names.get(0) + 
         " with schema: \n" + schema);
-        System.out.println("Create_HERE!");
+        
     }
     
     public void drop_core(){
