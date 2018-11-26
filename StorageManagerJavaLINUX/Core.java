@@ -143,16 +143,29 @@ public class Core {
         ArrayList<String> fieldNames = new ArrayList<String>();
         
         for (int i=0; i<parse.argumentList.size(); i++) {
-            String name = parse.argumentList.get(i).name;
-            fieldNames.add(name);
-            if (name.equalsIgnoreCase("INT")) { fieldType.add(FieldType.INT); }
-            else if (name.equalsIgnoreCase("STR20")) { fieldType.add(FieldType.STR20); }
+            // String name = parse.argumentList.get(i).name;
+            // String type = parse.argumentList.get(i).type;
+            fieldNames.add(parse.argumentList.get(i).name);
+            if (parse.argumentList.get(i).type.equalsIgnoreCase("INT")) { 
+            	fieldType.add(FieldType.INT); 
+            	
+            }
+            else if (parse.argumentList.get(i).type.equalsIgnoreCase("STR20")) { 
+            	fieldType.add(FieldType.STR20); 
+            	
+            }
         }
-
+		// System.out.println("FieldType: " + fieldType.size());
+		// System.out.println("FieldNames: " + fieldNames.size());
+		// System.out.println("FieldNames: " + parse.argumentList.get(0).name);
+		// System.out.println("FieldNames: " + parse.argumentList.get(1).name);
+		// System.out.println("FieldNames: " + parse.argumentList.get(2).name);
+		// System.out.println("FieldNames: " + parse.argumentList.get(3).name);
         Schema schema = new Schema(fieldNames, fieldType);
         schema_manager.createRelation(parse.t_names.get(0), schema);
         System.out.println("Created table: " + parse.t_names.get(0) + 
         " with schema: \n" + schema);
+        System.out.println("Create_HERE!");
     }
     
     public void drop_core(){

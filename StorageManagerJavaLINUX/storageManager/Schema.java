@@ -60,6 +60,7 @@ public class Schema implements Serializable {
 
 	  public Schema(ArrayList<String> field_names,  ArrayList<FieldType> field_types){
 	    if(field_names.size()!=field_types.size()){
+
 	      System.err.print("Schema ERROR: size of field_names and size of field_types do not match"+"\n");
 	      return;
 	    }
@@ -87,6 +88,7 @@ public class Schema implements Serializable {
 	      System.err.print("Schema ERROR: empty field name at offset " + (field_names.size()-1) + "\n");
 	      return;
 	    }
+	    
 	    //this.field_names = (ArrayList<String>) DeepCopy.copy(field_names);
 	    //this.field_types = (ArrayList<FieldType>) DeepCopy.copy(field_types);
 	    this.field_names=new ArrayList<String>();
@@ -106,6 +108,7 @@ public class Schema implements Serializable {
 	        return;
 	      }
 	    }
+	    System.out.println("IM HERE");
 	  }
 
 	  public boolean equals( Schema s)  {
