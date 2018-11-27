@@ -21,8 +21,10 @@ public class Main{
             Scanner scan = new Scanner(new FileInputStream(input));
 
             while (scan.hasNextLine()) {
-                core.core(scan.nextLine());
-                // System.out.println(scan.nextLine());
+                String s = scan.nextLine();
+                System.out.println(s);
+                core.core(s);
+                System.out.println();
             }
         }
         catch (FileNotFoundException e) {

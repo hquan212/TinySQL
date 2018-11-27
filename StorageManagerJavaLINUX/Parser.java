@@ -222,7 +222,6 @@ public class Parser{
                     }
 
                      System.out.println("Processing selection parses");
-                    System.out.println("Valid 1");
                     return selectedParse(stringBuilder.toString().split(" "));
                 }
       

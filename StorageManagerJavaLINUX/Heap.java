@@ -34,11 +34,9 @@ public class Heap {
 
     public Tuple_with_position pop_min(){
         if(heap.length == 0){
-            System.out.println("heap is empty");
             return null;
         }
         if(size == 0 ){
-            System.out.print("empty");
             return null;
         }
 

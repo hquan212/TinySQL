@@ -107,7 +107,7 @@ public class Core {
 		for (int i=0; i<scans; i++){
 		    int numBlocks =0;
 		    if (toupleBlocks - i *Config.NUM_OF_BLOCKS_IN_MEMORY <= Config.NUM_OF_BLOCKS_IN_MEMORY){
-		        numBlocks = toupleBlocks = i * Config.NUM_OF_BLOCKS_IN_MEMORY;
+		        numBlocks = toupleBlocks - i * Config.NUM_OF_BLOCKS_IN_MEMORY;
 		    } else {
 		        numBlocks = Config.NUM_OF_BLOCKS_IN_MEMORY;
 		    }
@@ -155,16 +155,9 @@ public class Core {
             	
             }
         }
-		// System.out.println("FieldType: " + fieldType.size());
-		// System.out.println("FieldNames: " + fieldNames.size());
-		// System.out.println("FieldNames: " + parse.argumentList.get(0).name);
-		// System.out.println("FieldNames: " + parse.argumentList.get(1).name);
-		// System.out.println("FieldNames: " + parse.argumentList.get(2).name);
-		// System.out.println("FieldNames: " + parse.argumentList.get(3).name);
+
         Schema schema = new Schema(fieldNames, fieldType);
-        // System.out.println("Create_HERE! part1: " + parse.t_names.get(0));
         schema_manager.createRelation(parse.t_names.get(0), schema);
-        // System.out.println("Create_HERE! part 2");
         System.out.println("Created table: " + parse.t_names.get(0) + 
         " with schema: \n" + schema);
         
@@ -188,7 +181,7 @@ public class Core {
         
         if (parse.select == null ){
             for (int i=0; i< tuple.getNumOfFields(); i++) {
-            	System.out.println(relationSchema.getFieldType(parse.argumentList.get(i).name));
+            	// System.out.println(relationSchema.getFieldType(parse.argumentList.get(i).name));
                 if ( relationSchema.getFieldType(parse.argumentList.get(i).name) == FieldType.STR20) {
                     String val = parse.values.get(i).replaceAll("\"", "");
                     tuple.setField(parse.argumentList.get(i).name, val);
@@ -196,7 +189,7 @@ public class Core {
                 else {
                 	// System.out.println(parse.argumentList.get(i).name);
                 	if(parse.values.get(i).equalsIgnoreCase("NULL")){
-                		tuple.setField(parse.argumentList.get(i).name, null);
+                		tuple.setField(parse.argumentList.get(i).name, 0);
                 	}else{
                 		tuple.setField(parse.argumentList.get(i).name, Integer.parseInt(parse.values.get(i)));
                 	}
@@ -980,7 +973,6 @@ public class Core {
 //	                            to do natural join
 //	                            tables t_1 && t_2
 //	                            join attribute
-//	                            System.out.println("I'm in natural join");
 //	                            sub_left.replaceAll("\.", "");
 	                            return natural_join(t_1,t_2,sub_left);
 	                        }

@@ -108,7 +108,7 @@ public class Schema implements Serializable {
 	        return;
 	      }
 	    }
-	    System.out.println("IM HERE");
+	    // System.out.println("IM HERE");
 	  }
 
 	  public boolean equals( Schema s)  {
