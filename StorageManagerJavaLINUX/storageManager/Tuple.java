@@ -180,7 +180,7 @@ public class Tuple implements Serializable {
 	      str+=("\n");
 	    }
 	    for (int i=0;i<fields.size();i++) {
-	      str+=fields.get(i)+"\t";
+	      str+=fields.get(i)+"\t\t";
 	    }
 	    return str;
 	  }

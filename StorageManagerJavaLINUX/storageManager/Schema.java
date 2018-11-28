@@ -202,7 +202,7 @@ public class Schema implements Serializable {
 	  public String fieldNamesToString()  {
 	    String str="";
 	    for (int i=0;i<field_names.size();i++) {
-	      str+=field_names.get(i) + "\t";
+	      str+=field_names.get(i) + "\t       ";
 	    }
 	    return str;
 	  }

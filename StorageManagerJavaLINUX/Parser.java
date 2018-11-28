@@ -46,7 +46,7 @@ public class Parser{
             if(res[0].equalsIgnoreCase("create")){
                 key_word.add("create");
                 if(res[1].equalsIgnoreCase("table")) {
-                    System.out.println("creating table please wait...");
+                    System.out.print("");
                 }
                 else{
                     System.out.print("This implementation only accept drop or create table.");
@@ -87,14 +87,14 @@ public class Parser{
                         }
                     }
                 }
-                System.out.print("Table created!");
+                
             }
             //Drop Table
             else if(res[0].equalsIgnoreCase("drop")){
                 //add it into keyword
                 key_word.add("drop");
                 if(res[1].equalsIgnoreCase("table")) {
-                    System.out.println("deleting (dropping) table please wait...");
+                    System.out.println("");
                 }
                 else{
                     System.out.print("This implementation only accept drop or create table.");
@@ -116,9 +116,6 @@ public class Parser{
                 if(!res[1].equalsIgnoreCase("into")){
                     System.out.print("This implementation only accept inteo from inserts.");
                     return false;
-                }
-                else{
-                    System.out.println("inserting tuples into table please wait...");
                 }
                 
                 t_names.add(res[2]);
@@ -221,7 +218,6 @@ public class Parser{
                         stringBuilder.append(res[i]+" ");
                     }
 
-                     System.out.println("Processing selection parses");
                     return selectedParse(stringBuilder.toString().split(" "));
                 }
       
@@ -288,6 +284,8 @@ public class Parser{
         int w_index = -1;
         int o_index = -1;
         
+        
+
         for(int i = 1; i < res.length; i++){
             if(res[i].equalsIgnoreCase("distinct")){
                 d_index = i;
@@ -334,7 +332,6 @@ public class Parser{
                 string_builder.append(res[i]+" ");
             }
             String[] arg_statement = string_builder.toString().split(",");
-
             if(arg_statement[0].trim().equalsIgnoreCase("*")){
                 if(arg_statement.length==1) {
                     select.argument.add("*");
@@ -356,7 +353,7 @@ public class Parser{
                 string_builder.append(res[i]+" ");
             }
             String[] arg_statement = string_builder.toString().split(",");
-
+            
             if(arg_statement[0].trim().equalsIgnoreCase("*")){
                 if(arg_statement.length==1) {
                     select.argument.add("*");

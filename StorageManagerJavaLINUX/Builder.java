@@ -53,6 +53,23 @@ public  class Builder {
                     }
                     operator.pop();
                     break;
+                    
+                case '[':
+                    operator.push(words[i]);
+                    break;
+                case ']':
+                    while(!operator.isEmpty()&& !operator.peek().equalsIgnoreCase("[")){
+                        SubTreeNode right = opobejct.pop();
+                        SubTreeNode left = opobejct.pop();
+                        String op1 = operator.pop();
+                        opobejct.push(new SubTreeNode(left,right,op1));
+                    }
+                    if(operator.peek()==null||!operator.peek().equalsIgnoreCase("[")){
+                        System.out.print("wrong input");
+                        return null;
+                    }
+                    operator.pop();
+                    break;
                 default:
                     opobejct.push(new SubTreeNode(words[i]));
             }
