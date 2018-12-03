@@ -5,7 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
-
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 
 public class Main{
     
@@ -24,10 +25,19 @@ public class Main{
             
                     Scanner scan = new Scanner(new FileInputStream(input));
                     long t0 = System.currentTimeMillis();
-
+                    
+                    try{
+                        PrintWriter writer = new PrintWriter("sql_output.txt");
+                        writer.print("");
+                        writer.close();
+                    }
+            		catch(FileNotFoundException ex){
+            			System.out.println("Output file not found!");
+            		}
                     while (scan.hasNextLine()) {
-                        core.core(scan.nextLine());
-                        // System.out.println(scan.nextLine());
+                        String s = scan.nextLine();
+                        System.out.println(s);
+                        core.core(s);
                     }
                     
                     long t1 = System.currentTimeMillis();
@@ -56,4 +66,5 @@ public class Main{
         }
         
     }
+
 }

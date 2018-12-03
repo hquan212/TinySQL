@@ -10,9 +10,14 @@ import storageManager.Config;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+import java.io.PrintWriter;
+import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class Core {
  
+	PrintWriter writer;
 	private Parser parse;
 	public MainMemory mem;
 	public Disk disk;
@@ -55,6 +60,20 @@ public class Core {
 		   else if(parse.key_word.get(0).equalsIgnoreCase("select")){
 			   Relation r=select_core();
 			   System.out.println(r);
+			   try{
+					writer = new PrintWriter(new FileOutputStream(
+				    new File("sql_output.txt"), 
+				    true /* append = true */)); 
+				}
+				catch(FileNotFoundException ex){
+					System.out.println("Output file not found!");
+				}
+					   
+			   writer.println(stm);
+			   writer.println(r);
+			   writer.println("Disk IOS: " + disk.getDiskIOs());
+			   writer.println();
+			   writer.close();
 			   if(r.getRelationName().contains(",")) {
 				   schema_manager.deleteRelation(r.getRelationName());
 			   }
