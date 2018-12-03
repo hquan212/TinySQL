@@ -20,7 +20,9 @@ public class Main{
             String answer = scanner.nextLine();
             if (answer.equals("Yes") || answer.equals("yes")){
                 try{
-                    File input = new File("./test/TinySQL-TextLINUX.txt");
+                    //File input = new File("./test/TinySQL-TextLINUX.txt");
+                    
+                    File input = new File("./test/TinySQL-test.txt");
             
                     Scanner scan = new Scanner(new FileInputStream(input));
                     long t0 = System.currentTimeMillis();
