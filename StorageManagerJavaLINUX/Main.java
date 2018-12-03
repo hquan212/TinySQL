@@ -52,6 +52,9 @@ public class Main{
             } else if (answer.equals("No") || answer.equals("no")) {
                  System.out.println("Enter TinySQL Statement or enter 'exit' to exit TinySQL:");
                  String statement = scanner.nextLine();
+                 if (statement.equals("exit") || statement.equals("Exit")){
+                    break; 
+                 }
                  long t0 = System.currentTimeMillis();
                  core.core(statement);
                  long t1 = System.currentTimeMillis();
