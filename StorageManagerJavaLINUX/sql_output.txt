@@ -2,6 +2,7 @@ SELECT * FROM course
 ******RELATION DUMP BEGIN******
 sid	       homework	       project	       exam	       grade	       
 0: 1		99		100		100		A		
+<<<<<<< HEAD
 ******RELATION DUMP END******
 Disk IOS: 3
 
@@ -372,50 +373,85 @@ sid	       homework	       project	       exam	       grade
 60: 15		100		99		100		E		
 ******RELATION DUMP END******
 Disk IOS: 2042
+=======
+******RELATION DUMP END******
+Disk IOS: 3
 
-SELECT * FROM course WHERE exam = 100
+SELECT * FROM course
 ******RELATION DUMP BEGIN******
 sid	       homework	       project	       exam	       grade	       
 0: 1		99		100		100		A		
-1: 15		100		99		100		E		
-2: 17		100		100		100		A		
-3: 17		100		100		100		A		
+1: 2		-1		100		100		E		
 ******RELATION DUMP END******
+Disk IOS: 9
+>>>>>>> e9ac1a058928c4fe24f2cbc5eafd01f44fd247be
+
+SELECT * FROM course
+******RELATION DUMP BEGIN******
+sid	       homework	       project	       exam	       grade	       
+0: 1		99		100		100		A		
+1: 2		-1		100		100		E		
+2: 3		100		100		100		E		
+******RELATION DUMP END******
+<<<<<<< HEAD
 Disk IOS: 2229
+=======
+Disk IOS: 17
+>>>>>>> e9ac1a058928c4fe24f2cbc5eafd01f44fd247be
 
-SELECT * FROM course WHERE grade = "A"
+SELECT * FROM course
 ******RELATION DUMP BEGIN******
 sid	       homework	       project	       exam	       grade	       
 0: 1		99		100		100		A		
-1: 17		100		100		100		A		
-2: 5		100		100		66		A		
-3: 17		100		100		100		A		
+1: 2		-1		100		100		E		
+2: 3		100		100		100		E		
+3: 1		99		100		100		A		
+4: 2		-1		100		100		E		
+5: 3		100		100		100		E		
 ******RELATION DUMP END******
+<<<<<<< HEAD
 Disk IOS: 2416
+=======
+Disk IOS: 47
+>>>>>>> e9ac1a058928c4fe24f2cbc5eafd01f44fd247be
 
-SELECT * FROM course WHERE exam = 100 AND project = 100
+SELECT * FROM course
 ******RELATION DUMP BEGIN******
 sid	       homework	       project	       exam	       grade	       
 0: 1		99		100		100		A		
-1: 17		100		100		100		A		
-2: 17		100		100		100		A		
+1: (hole)
+2: (hole)
+3: 1		99		100		100		A		
+4: (hole)
+5: (hole)
 ******RELATION DUMP END******
+<<<<<<< HEAD
 Disk IOS: 2601
+=======
+Disk IOS: 71
+>>>>>>> e9ac1a058928c4fe24f2cbc5eafd01f44fd247be
 
-SELECT * FROM course WHERE exam = 100 OR exam = 99
+SELECT * FROM course
 ******RELATION DUMP BEGIN******
 sid	       homework	       project	       exam	       grade	       
 0: 1		99		100		100		A		
-1: 15		100		99		100		E		
-2: 17		100		100		100		A		
-3: 2		100		100		99		B		
-4: 17		100		100		100		A		
+1: (hole)
+2: (hole)
+3: 1		99		100		100		A		
+4: (hole)
+5: (hole)
+6: 4		99		100		100		B		
 ******RELATION DUMP END******
+<<<<<<< HEAD
 Disk IOS: 2790
+=======
+Disk IOS: 87
+>>>>>>> e9ac1a058928c4fe24f2cbc5eafd01f44fd247be
 
-SELECT * FROM course WHERE NOT exam = 0
+SELECT * FROM course
 ******RELATION DUMP BEGIN******
 sid	       homework	       project	       exam	       grade	       
+<<<<<<< HEAD
 0: 16		0		0		0		E		
 1: 16		0		0		0		E		
 2: 16		0		0		0		E		
@@ -902,4 +938,15 @@ SELECT * FROM t1, t2, t3, t4, t5, t6
 t1.c	       t2.c	       t3.c	       t4.c	       t5.c	       t6.c	       
 ******RELATION DUMP END******
 Disk IOS: 9054
+=======
+0: 
+1: 
+2: 
+3: 
+4: 
+5: 
+6: 
+******RELATION DUMP END******
+Disk IOS: 115
+>>>>>>> e9ac1a058928c4fe24f2cbc5eafd01f44fd247be
 

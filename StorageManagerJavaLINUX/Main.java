@@ -25,8 +25,15 @@ public class Main{
             String answer = scanner.nextLine();
             if (answer.equals("Yes") || answer.equals("yes")){
                 try{
+<<<<<<< HEAD
                     // Look for the test file located in the test folder
                     File input = new File("./test/TinySQL-TextLINUX.txt");
+=======
+                    System.out.println("Enter filename (without .txt):");
+                    String answer2 = scanner.nextLine();
+                    
+                    File input = new File("./test/" + answer2 + ".txt");
+>>>>>>> e9ac1a058928c4fe24f2cbc5eafd01f44fd247be
             
                     Scanner scan = new Scanner(new FileInputStream(input));
                     long t0 = System.currentTimeMillis();
