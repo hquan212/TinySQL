@@ -21,7 +21,10 @@ public class Main{
             String answer = scanner.nextLine();
             if (answer.equals("Yes") || answer.equals("yes")){
                 try{
-                    File input = new File("./test/TinySQL-TextLINUX.txt");
+                    System.out.println("Enter filename (without .txt):");
+                    String answer2 = scanner.nextLine();
+                    
+                    File input = new File("./test/" + answer2 + ".txt");
             
                     Scanner scan = new Scanner(new FileInputStream(input));
                     long t0 = System.currentTimeMillis();
