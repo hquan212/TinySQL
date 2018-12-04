@@ -31,6 +31,10 @@ public class Main{
 
                     System.out.println("Enter filename (without .txt):");
                     String answer2 = scanner.nextLine();
+                    if (answer2.equals("exit") || answer2.equals("Exit")){
+                        break;
+                    }
+                    
                     
                     File input = new File("./test/" + answer2 + ".txt");
             
