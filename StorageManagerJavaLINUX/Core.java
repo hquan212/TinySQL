@@ -1,3 +1,7 @@
+/*
+* RQ, XT, VS
+*/
+
 import storageManager.Block;
 import storageManager.Disk;
 import storageManager.FieldType;
@@ -31,6 +35,8 @@ public class Core {
 	    disk.resetDiskTimer();
 	    
 	}
+	
+	//Core will parse the input string and correctly select which operation to hand it to
 	public void core(String stm){
 	    
 		if(parse.syntax(stm)){
@@ -106,6 +112,7 @@ public class Core {
 		}
 	}
 	
+	//Case when we need to delete the relation
 	public void delete_core(){
 
 		String toupleName = parse.delete.table_names.get(0);
@@ -157,6 +164,7 @@ public class Core {
 		
 	}
 
+	//Case when we need to create a relation
     public void create_core() {
         ArrayList<FieldType> fieldType = new ArrayList<FieldType>();
         ArrayList<String> fieldNames = new ArrayList<String>();
@@ -182,12 +190,14 @@ public class Core {
         
     }
     
+    //Case when we need to Drop values form relation
     public void drop_core(){
         String tableName = parse.t_names.get(0);
         schema_manager.deleteRelation(tableName);
         System.out.println("Deleted table: " + tableName);
     }
     
+    //Case when we need to insert values into realtion
     public void insert_core(){
         String toTableName = parse.t_names.get(0);
         
@@ -236,7 +246,7 @@ public class Core {
         }
     }
     
-
+    //Important Select case that also prints out and writes relation
     public Relation select_core(){
     	Relation joined_table;
     	boolean one_pass = true;
@@ -473,6 +483,7 @@ public class Core {
 		return return_relation;
 		}
     
+    //One pass optimization for select, projection, selection, product, join, duplicate elimination, and sorting
     private Relation onePass(ArrayList<String> t_names){
     	
     	Schema onePass = schemaCombine(t_names);
@@ -509,6 +520,7 @@ public class Core {
     	return operation;
     }
     
+    //Helper function for the onepass 
     private ArrayList<Tuple> onePassMemory(ArrayList<Tuple> tList, int num, int time, ArrayList<String> tups, int totalTups){
     	
     	if(time==(num-1)){
@@ -576,7 +588,8 @@ public class Core {
 		return tList;
     	
     }
-           
+    
+    //Combine schema helper function
     private Schema schemaCombine(ArrayList<String> tableNames){
     	
     	Schema[] schm_a = new Schema[tableNames.size()];
@@ -598,6 +611,7 @@ public class Core {
 	    return joined_schema;
     } //merge_schema
     
+    //Optmized natural join with the two pass algorithm
     private String natural_join(String t_1, String t_2, String attr) {
     	
     	Relation r1 = schema_manager.getRelation(t_1);
@@ -843,6 +857,7 @@ public class Core {
 		
 	}
 	
+	//second pass distinct
 	private Relation distinct_second_pass(Relation return_relation, ArrayList<String> field_names){
     	Heap heap= new Heap(80,field_names);
     	int blocks = return_relation.getNumOfBlocks();
@@ -891,8 +906,7 @@ public class Core {
 		return distinct_relation;
     }
     
-    
-    
+    //Two pass optimization for join, duplicate elimination, and sorting
     private Relation order_second_pass(Relation return_relation, ArrayList<String> order_attr){
 //		 if(return_relation.getSchema().getFieldNames().contains(order_attr.get(0))){
 //			 Relation order_relation=schema_manager.createRelation("order_relation", return_relation.getSchema());
@@ -944,6 +958,7 @@ public class Core {
 		 
 	}
     
+    //Cartesion product join
 	private String new_join(String t_1, String t_2, boolean last_one, boolean na_join){
     	long r=System.currentTimeMillis();
 		ArrayList<SubTreeNode> clauses=new ArrayList<SubTreeNode>();
@@ -1275,7 +1290,8 @@ public class Core {
 		}
 		 return "null";
 	}
-	
+
+	//One pass helper
     private Relation first_pass(Relation return_relation, ArrayList<String> field_names){
 //		 if(return_relation.getSchema().getFieldNames().contains(field_names.get(0))){
 //			 return return_relation;
@@ -1366,8 +1382,6 @@ public class Core {
 	      }
 	    }
     }
-
-	
 }
         
         

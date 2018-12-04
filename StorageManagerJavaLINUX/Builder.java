@@ -1,7 +1,7 @@
 import java.util.Stack;
 
 /**
- * Created by lsr on 2016/11/30.
+ * RQ, XT, VS
  */
 public  class Builder {
     public static SubTreeNode generate(String input){

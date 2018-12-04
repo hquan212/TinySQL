@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 /*
-    created 11/2/2018
+    RQ, XS, VS
 */
 
 public class SubTreeNode{
@@ -29,7 +29,7 @@ public class SubTreeNode{
         right = null;
     }
     
-        public ArrayList<SubTreeNode> hasSelection(){
+    public ArrayList<SubTreeNode> hasSelection(){
         if(right ==null){
             return null;
         }

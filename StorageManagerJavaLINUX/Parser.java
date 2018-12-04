@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 /*
 
-    created 10/2/18
+RQ, XT, VS
 
 */
 
@@ -32,6 +32,7 @@ public class Parser{
         select = null;
         
     }
+    
     //get the a string from execution to parse through the values
     public boolean syntax(String sampleString){
         try{
@@ -275,6 +276,7 @@ public class Parser{
         return true;
     }
     
+    //Select statement in parse
     private boolean selectedParse(String[] res){
         select = new TreeNode();
         key_word.add("select");
@@ -449,6 +451,7 @@ public class Parser{
         return true;
     }
     
+    //Clear out the parse tree and memebers
     public void reset(){
         sentence = null;
         key_word = new ArrayList<>();

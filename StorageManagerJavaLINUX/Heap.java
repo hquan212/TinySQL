@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by lsr on 2016/12/3.
+ * RQ, XT, VS
  */
 public class Heap {
     List<String> compare_field;

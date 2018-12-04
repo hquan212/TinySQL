@@ -1,3 +1,4 @@
+// RQ, XT, VS
 import storageManager.Tuple;
 
 public class Tuple_with_position {

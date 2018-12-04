@@ -1,4 +1,7 @@
 // CSCE 608 Database
+/*
+* RQ, XT, VS
+*/
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +17,7 @@ public class Main{
         
         Core core = new Core();
         
+        // User interface
         while (true){
             Scanner scanner = new Scanner(System.in);
             System.out.println("*********TinySQL RDMS INTERPRETER BY HENRY QUAN, VISHAKH SHUKLA, XIEN THOMAS*********");
@@ -21,6 +25,7 @@ public class Main{
             String answer = scanner.nextLine();
             if (answer.equals("Yes") || answer.equals("yes")){
                 try{
+                    // Look for the test file located in the test folder
                     File input = new File("./test/TinySQL-TextLINUX.txt");
             
                     Scanner scan = new Scanner(new FileInputStream(input));
@@ -35,6 +40,7 @@ public class Main{
             			System.out.println("Output file not found!");
             		}
                     while (scan.hasNextLine()) {
+                        //Read in each statement and send it to be parsed in the Core.
                         String s = scan.nextLine();
                         System.out.println(s);
                         core.core(s);
