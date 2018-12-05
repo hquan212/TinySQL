@@ -27,9 +27,8 @@ public class Main{
                 try{
 
                     // Look for the test file located in the test folder
-                    File input = new File("./test/TinySQL-TextLINUX.txt");
-
-                    System.out.println("Enter filename (without .txt):");
+           
+                    System.out.println("Enter filename (enter TinySQL-TextLINUX for default file) (without .txt):");
                     String answer2 = scanner.nextLine();
                     if (answer2.equals("exit") || answer2.equals("Exit")){
                         break;
